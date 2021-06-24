@@ -1,0 +1,66 @@
+
+
+ad_info
+
+
+{
+    'data': 
+        {
+            'ad_list': 
+                [
+                    {
+                        'data': 
+                            {
+                                'profile': 
+                                    {
+                                        'username': 'sromero',
+                                        'trade_count': '500+',
+                                        'feedback_score': 100,
+                                        'name': 'sromero (500+; 100%)',
+                                        'last_online': '2021-06-23T23:04:07+00:00'
+                                    },
+                                'visible': True,
+                                'hidden_by_opening_hours': False,
+                                'location_string': 'Mexico City, CDMX, Mexico',
+                                'countrycode': 'MX',
+                                'city': 'Mexico City',
+                                'trade_type': 'ONLINE_SELL',
+                                'online_provider': 'SPECIFIC_BANK',
+                                'first_time_limit_btc': None,
+                                'volume_coefficient_btc': '1.50',
+                                'sms_verification_required': True,
+                                'currency': 'MXN',
+                                'lat': 0.0,
+                                'lon': 0.0,
+                                'min_amount': '100.00',
+                                'max_amount': '4500.00',
+                                'max_amount_available': '4500.00',
+                                'ad_id': 1261529,
+                                'temp_price_usd': '41090.33',
+                                'temp_price': '830000.00',
+                                'created_at': '2020-09-25T01:49:10+00:00',
+                                'require_feedback_score': 90,
+                                'require_trade_volume': 0.3,
+                                'msg': 'Transferencia⭐SPEI⭐o deposito en ⭐OXXO⭐. Todos los bancos con Mexican Peso (MXN)\n\nCualquier duda estoy a sus ordenes, Gracias!!\n\nSi haces triangulación (no eres tu quien esta consignando o transfiriendo directamente) y no envías el recibo dentro de los tiempos estipulados en el comercio corres el riesgo de ser bloqueado.\n\nSi haces triangulación ( no eres tu quien esta consignando o transfiriendo directamente) y no envías el comprobante en 90 minutos corres el riesgo de que tus BTC sean liberados mucho después o de que se agoten los BTC y te sea devuelto el dinero, en ese caso te atendemos por\nt3legr4m: @sromeroBTC1', 'bank_name': '⭐SPEI⭐OXXO⭐TODOS LOS BANCOS⭐',
+                                'atm_model': None,
+                                'require_trusted_by_advertiser': False,
+                                'require_identification': True,
+                                'is_local_office': False,
+                                'payment_window_minutes': 90,
+                                'limit_to_fiat_amounts': None,
+                                'reference_type': 'SHORT',
+                                'display_reference': True,
+                                'price_equation': '830000',
+                                'track_max_amount': False,
+                                'opening_hours': '[[36, 96], [36, 96], [36, 96], [32, 96], [36, 96], [36, 96], [36, 96]]',
+                                'account_info': '⭐SPEI⭐OXXO⭐'
+                            },
+                            'actions': 
+                                {
+                                    'public_view': 'https://localbitcoins.com/ad/1261529',
+                                    'change_form': 'https://localbitcoins.com/api/ad/1261529/',
+                                    'html_form': 'https://localbitcoins.com/ads_edit/1261529'
+                                }
+                    }
+                ],
+             'ad_count': 1}}

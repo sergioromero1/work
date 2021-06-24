@@ -31,25 +31,17 @@ def get_message_nuevo_comercio(verificador):
     
     """Devuelve el mensaje para nuevo comercio"""
 
-    if verificador == 'cristina':
-        return 'BANAMEX \n Cristina Nolasco \n\n Para pago en oxxo \n 5206 9496 3512 8290  \n\n Para Transferencia SPEI \n '\
-                        '002180701431343757'
+    if verificador == 'kozel':
+        return 'BAC \n Fernando Josue Kozel Borbon \n\n Numero de cuenta Bac \n 941235723  \n\n Número de cuenta IBAN \n '\
+                        'CR36010200009412357238\n\n SINPE MOVIL: 63847393 \n\n En el concepto/referencia escribe: compra de BTC No reembolsable'
     
-    if verificador == 'bbva':
-        return 'BBVA Bancomer \n Cristina Nolasco \n\n Para pago en oxxo \n 4152 3135 9796 3326  \n\n Para Transferencia SPEI \n '\
-                        '012180015420804899'
+    if verificador == 'leo':
+        return 'BAC \n Leonel Moises Arley Esteller \n\n Numero de cuenta Bac \n 947162996  \n\n Número de cuenta IBAN \n '\
+                        'CR25010200009471629965\n\n SINPE MOVIL: 62803209 \n\n En el concepto/referencia escribe: compra de BTC No reembolsable'
 
-    if verificador == 'sergio':
-        return 'HSBC \n Sergio Romero Romero \n\n Para pago en oxxo \n 4830 3031 5122 5386  \n\n Para Transferencia SPEI \n '\
-                        '021180040645026366'
-
-    if verificador == 'edgar':
-        return 'HSBC \n Edgar Rivas Nolasco \n\n Para pago en oxxo \n 4830 3031 5121 4612  \n\n Para Transferencia SPEI \n '\
-                        '021180040645025781'
-
-    if verificador == 'perfiles':
-        return 'BANAMEX \n Cristina Nolasco \n\n Para pago en oxxo \n 5204 1651 7729 2392  \n\n Para Transferencia SPEI \n '\
-                        '002180700913724772'
+    if verificador == 'mama':
+        return 'BAC \n Briceidy Borbon Picado \n\n Numero de cuenta Bac \n 947245270  \n\n Número de cuenta IBAN \n '\
+                        'CR26010200009472452701\n\n SINPE MOVIL: 88275537 \n\n En el concepto/referencia escribe: compra de BTC No reembolsable'
 
 def get_message_venta_completada():
 
@@ -172,7 +164,7 @@ def respond_notification(verificador):
     hmac_secret = '760373e5a8cbc7a615a86b193cc48767583901080d223931a24235c0f48f4163'
     conn = hmac(hmac_key, hmac_secret)
     response = conn.call(method='GET', url='/api/notifications/')
-    id_ad = '1261529'
+    id_ad = '1381456'
 
     notificaciones = response.json()['data']
 
