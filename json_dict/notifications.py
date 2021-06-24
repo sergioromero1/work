@@ -1,6 +1,7 @@
 [
     {
-        'read': True, 'created_at': '2020-09-17T13:59:47+00:00', 
+        'read': True,
+        'created_at': '2020-09-17T13:59:47+00:00', 
         'msg': 'Contact #65442550 nuevo mensaje de Oladimejiabeeb (100+; 100%)', 
         'url': '/request/online_sell_seller/65442550', 
         'id': '888d3fb67783', 

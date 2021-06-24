@@ -25,7 +25,7 @@ def format_time(sec):
     sec = sec % 60
     hours = mins // 60
     mins = mins % 60
-    return "Duración = {0}:{1}:{2}".format(int(hours),int(mins),sec)
+    return "Duración = {0}:{1}:{2}".format(int(hours),int(mins),round(sec,2))
 
 def get_message_nuevo_comercio(verificador):
     
@@ -73,14 +73,18 @@ def atender_final_venta(notificacion, conn):
     
     mensaje = get_message_btc_liberados()
 
-    contact_id = notificacion['contact_id']
-    notification_id = notificacion['id']
-    marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-    print(marcar_como_leida.json())
+    enviado = False
 
-    enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
-                
-    print(enviar_mensaje.json())
+    contact_id = notificacion['contact_id']
+    contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
+    
+    for message in contact_messages:
+        if message['msg'][0:13] == mensaje[0:13]:
+            enviado = True
+    
+    if not enviado:
+        enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})        
+        print(enviar_mensaje.json(), ' Mensaje Final de venta enviado')
 
 def atender_nuevo_comercio(verificador, notificacion, conn):
 
@@ -90,7 +94,7 @@ def atender_nuevo_comercio(verificador, notificacion, conn):
     contact_id = notificacion['contact_id']
     notification_id = notificacion['id']
     marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-    print(marcar_como_leida.json())
+    print(marcar_como_leida.json(), ' Notif leida Nuevo comercio')
     
     if is_afternoon():
         saludo = 'Buenas tardes \n'
@@ -99,7 +103,7 @@ def atender_nuevo_comercio(verificador, notificacion, conn):
 
     enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{saludo} {mensaje}'})
                 
-    print(enviar_mensaje.json())
+    print(enviar_mensaje.json(), ' Mensaje nuevo comercio enviado')
 
 def atender_marcado_como_pagado(notificacion, conn):
 
@@ -113,18 +117,18 @@ def atender_marcado_como_pagado(notificacion, conn):
     notification_id = notificacion['id']
     contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
     marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-    print(marcar_como_leida.json())
+    print(marcar_como_leida.json(), ' Notif leida marcado como pagado')
 
     for message in contact_messages:
         if 'attachment_type' in message:
             attachment = True
 
-        if message['msg'][0:13] == 'Gracias, comp':
+        if message['msg'][0:13] == mensaje[0:13]:
             enviado = True
 
     if attachment and not enviado:
         enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
-        print(enviar_mensaje.json())
+        print(enviar_mensaje.json(), ' Mensaje de venta completada enviado')
 
 def atender_nuevo_mensaje(notificacion, conn):
 
@@ -140,12 +144,12 @@ def atender_nuevo_mensaje(notificacion, conn):
     contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
     contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
     marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-    print(marcar_como_leida.json())
+    print(marcar_como_leida.json(), ' Notif leida nuevo mensaje o comprobante')
 
     for message in contact_messages:
         if 'attachment_type' in message:
             attachment = True
-        if message['msg'][0:11] == 'Comprobante':
+        if message['msg'][0:13] == mensaje[0:13]:
             enviado = True
                             
     if contact_info['payment_completed_at'] is not None:
@@ -153,7 +157,7 @@ def atender_nuevo_mensaje(notificacion, conn):
                     
     if attachment and payed and not enviado:
         enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
-        print(enviar_mensaje.json())
+        print(enviar_mensaje.json(), ' Mensaje de venta completada enviado')
 
 def identificar_ad_id(notificacion, conn):
     
@@ -161,7 +165,17 @@ def identificar_ad_id(notificacion, conn):
     contact_info = conn.call(method='GET', url= f'/api/contact_info/{contact_id}/')
     ad_id = contact_info.json()['data']['advertisement']['id']
     
-    return ad_id
+    return str(ad_id)
+
+def notification_time(notificacion):
+    
+    created_at_str = notificacion['created_at'][0:10] + ' ' + notificacion['created_at'][11:19]
+
+    created_at = datetime.datetime.strptime(created_at_str,'%Y-%m-%d %H:%M:%S').timestamp()
+
+    now = datetime.datetime.utcnow().timestamp()
+
+    return now - created_at
 
 def respond_notification(verificador):
 
@@ -179,6 +193,8 @@ def respond_notification(verificador):
     for notificacion in notificaciones:
 
         if notificacion['url'][9:27] == 'online_sell_seller':
+
+            notif_time = notification_time(notificacion)
     
             if not notificacion['read'] and notificacion['msg'][0:6] == '¡Tiene':
 
@@ -204,8 +220,8 @@ def respond_notification(verificador):
 
                 continue
 
-            if not notificacion['read'] and notificacion['msg'][0:12] == 'Ha realizado':
-                
+            if notif_time < 60 and notificacion['msg'][0:12] == 'Ha realizado':
+
                 ad_id = identificar_ad_id(notificacion, conn)
                 if ad_id==id_ad:
                     atender_final_venta(notificacion, conn)
