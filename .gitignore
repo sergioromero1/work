@@ -1,0 +1,4 @@
+settings.py
+__pycache__
+.vscode
+json_dict/*

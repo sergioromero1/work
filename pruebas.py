@@ -1,8 +1,11 @@
 import time
+import datetime
 import hashlib
 import hmac as hmac_lib
 import requests
 import sys
+import re
+
 from urllib.parse import urlparse
 
 def conectar(server='https://localbitcoins.com'):
@@ -16,102 +19,71 @@ def conectar(server='https://localbitcoins.com'):
     
     return conn
 
-def informacion_comerciantes(conn, currency):
-    
-    """Retorna la informacion de los 6 primeros anuncios"""
-
-    response = conn.call(method='GET',url= f'/buy-bitcoins-online/{currency}/.json')
-    ad = response.json()['data']['ad_list']
-    info = {'primero':{}, 'segundo':{}, 'tercero':{}, 'cuarto':{}, 'quinto':{}, 'sexto':{}}
-    position = 0
-
-    for inside_dict in info.values():
-        
-        inside_dict['name'] = str(ad[position]['data']['profile']['username'])
-        inside_dict['price'] = float(ad[position]['data']['temp_price'])
-        inside_dict['min_amount'] = float(ad[position]['data']['min_amount']) if ad[position]['data']['min_amount'] is not None else 0
-        inside_dict['max_amount'] = float(ad[position]['data']['max_amount_available'])
-
-        position += 1
-
-    return info
-
-def precio_de_colombia(conn):
-
-    currency = 'COP'
-    response = conn.call(method='GET',url= f'/sell-bitcoins-online/{currency}/.json')
-    ad = response.json()['data']['ad_list']
-    primer_precio = float(ad[2]['data']['temp_price'])
-
-    return primer_precio
-
-def precio_de_colombia_comun(conn):
-
-    currency = 'COP'
-    response = conn.call(method='GET',url= f'/buy-bitcoins-online/{currency}/.json')
-    ad = response.json()['data']['ad_list']
-    primer_precio = float(ad[0]['data']['temp_price'])
-
-    return primer_precio
-
-def margen_costa_rica(conn, precio_compra_CRC, currency, mi_max, mi_min):
-
-    """Retorna el margen de Costa Rica"""
-
-    currency = 'CRC'
-    response = conn.call(method='GET',url= f'/buy-bitcoins-online/{currency}/.json')
-    ad = response.json()['data']['ad_list']
-    info = informacion_comerciantes(conn, currency)
-    for puesto,datos in info.items():
-        if mi_max >= datos['min_amount'] and mi_min <= datos['max_amount'] and datos['name'] != 'sromero':
-            puesto_a_superar = str(puesto)
-            break
-
-    primer_precio_CRC = info[f'{puesto_a_superar}']['price']
-    print(primer_precio_CRC)
-    margen = primer_precio_CRC / precio_compra_CRC
-    return margen
-
-def margen_mexico(conn, precio_compra_MXN, currency, mi_max, mi_min):
-
-    """Retorna el margen de Mexico"""
-
-    currency = 'MXN'
-    response = conn.call(method='GET',url= f'/buy-bitcoins-online/{currency}/.json')
-    ad = response.json()['data']['ad_list']
-    info = informacion_comerciantes(conn, currency)
-    for puesto,datos in info.items():
-        if mi_max >= datos['min_amount'] and mi_min <= datos['max_amount'] and datos['name'] != 'sromero':
-            puesto_a_superar = str(puesto)
-            break
-    
-    primer_precio_MXN = info[f'{puesto_a_superar}']['price']
-
-    margen = primer_precio_MXN / precio_compra_MXN
-
-    return margen
-
-def margenes():
-
-    """Retorna el valor de los margenes de MEX y CRC
-    """
-    
-    precio_MXN = float(input('Precio MXN: '))
-    precio_CRC = float(input('Precio CRC: '))
-    mi_min_mx = 100 
-    mi_min_cr = 5000
-    mi_max_mx = 5000
-    mi_max_cr = 100000
+def country_codes():
 
     conn = conectar()
-    precio_colombia = precio_de_colombia(conn)
-    print(precio_colombia)
-    precio_compra_MXN = precio_colombia / precio_MXN
-    precio_compra_CRC = precio_colombia / precio_CRC
-    m_mexico = margen_mexico(conn, precio_compra_MXN, 'MXN',mi_max_mx, mi_min_mx)
-    m_costa_rica = margen_costa_rica(conn, precio_compra_CRC, 'CRC',mi_max_cr,mi_min_cr)
-    print(f'\nMargen de México = {m_mexico}..\n')
-    print(f'\nMargen de CR = {m_costa_rica}..\n')
+    # response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
+
+    # response = conn.call(method='GET', url= f'/api/payment_methods/')
+    # response = conn.call(method='GET', url= f'/api/countrycodes/')
+
+    # response = conn.call(method='GET',url= f'/buy-bitcoins-online/MXN/.json')
+    # response = conn.call(method='GET', url='/api/notifications/')
+
+    # notificaciones = response.json()['data']
+    # print(response.json())
+    response = conn.call(method='GET',url= f'/buy-bitcoins-online/CRC/.json')
+    ad = response.json()['data']['ad_list']
+    print(ad)
+
+def respond_notification():
+
+    """Atiende las notificaciones"""
+    
+    conn = conectar()
+    response = conn.call(method='GET', url='/api/notifications/')
+    
+
+    notificaciones = response.json()['data']
+    print(notificaciones)
+
+    for notificacion in notificaciones:
+
+        if notificacion['url'][32:48] == 'online_buy_buyer':
+            print('hola')
+            contact_id = notificacion['contact_id']
+            contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
+            for message in contact_messages:
+
+                cuenta = re.search(r'\d{11}', message['msg'])
+                if cuenta:
+                    print(cuenta[0])
+
+def prueba_rapida():
+    conn = conectar()
+
+    # response = conn.call(method='GET',url= f'/buy-bitcoins-online/CRC/.json')
+    # response = conn.call(method='GET',url= f'/bitcoincharts/CRC/orderbook.json')
+    # response = conn.call(method='GET',url= f'/bitcoincharts/CRC/trades.json')
+    response = conn.call(method='GET',url= f'/api/fees/')
+    mensaje = 'Procedo'
+    contact_messages = conn.call(method='GET', url=f'/api/contact_messages/74660722/').json()['data']['message_list']
+
+    for message in contact_messages:
+        if message['msg'][0:4] == mensaje[0:4]:
+            enviado = True
+        cuenta1 = re.search(r'\d{11}', message['msg'])
+        cuenta2 = re.search(r'\d{2,6}[-\s]+\d{2,6}[-\s]+\d{2,6}[-\s]?\d*', message['msg'])
+        if cuenta1:
+            num_cuenta = True
+            cuenta = cuenta1
+        if cuenta2:
+            num_cuenta = True
+            cuenta = cuenta2
+
+    if num_cuenta:
+        print(f'hola {cuenta[0]}')
+
 
 class Connection():
 
@@ -180,6 +152,11 @@ class Connection():
                     if int(response_json.get('error', {}).get('error_code')) == 42:
                         time.sleep(0.1)
                         continue
+                    if response_json.get('error', {}).get('message'):
+                        print(response_json.get('error', {}).get('message'))
+                        print(response_json.get('error', {}).get('error_code'))
+                        time.sleep(30)
+                        continue
                 except:
                     # No JSONic response, or interrupt, better just give up
                     pass
@@ -202,10 +179,5 @@ class Connection():
 
 if __name__ == "__main__":
 
-    margenes()
+    country_codes()
     
-
-
-    
-    
-
