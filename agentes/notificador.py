@@ -266,7 +266,7 @@ class Notificador:
 
         return response.json()['ok']
 
-class NofiticadorCompra(Notificador):
+class NotificadorCompra(Notificador):
 
     def atender_final_compra(self, notificacion, conn):
         

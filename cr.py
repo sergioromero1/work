@@ -29,7 +29,7 @@ if __name__ == "__main__":
         'require_identification': True,
         'opening_hours': '[[46, 80], [36, 90], [36, 90], [36, 90], [36, 90], [36, 90], [36, 80]]'
     }
-    vender_solo = False
+    vender_solo = True
     vendedor = Vendedor(precio_limite_total, minimo, currency, ad_id,key, secret, parametros, vender_solo)
     vendedor.update_price()
     
