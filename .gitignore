@@ -3,3 +3,4 @@ __pycache__
 .vscode
 json_dict/*
 pruebas.py
+logs/*

@@ -1,4 +1,5 @@
 from .conectar import Connection
+import csv
 import datetime
 import requests
 import time
@@ -24,14 +25,19 @@ class Notificador:
         return (self.__dict__[nombre] for nombre in nombres)
 
     def atender_final_venta(self, notificacion, conn):
-        
+
+        """Actua después de haber liberado los btc,
+            envia un mensaje al cliente y escribe en el log
+        """
+        currency, = self.get_atributos('currency')
         mensaje = self.get_message_btc_liberados()
 
         enviado = False
 
         contact_id = notificacion['contact_id']
         contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
-        
+        contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
+
         for message in contact_messages:
             if message['msg'][0:13] == mensaje[0:13]:
                 enviado = True
@@ -39,6 +45,10 @@ class Notificador:
         if not enviado:
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})        
             print(enviar_mensaje.json(), ' Mensaje Final de venta enviado')
+            fiat = contact_info['amount']
+            btc = float(contact_info['amount_btc']) + float(contact_info['fee_btc'])
+            self.escribir_log(fiat, btc)
+            print(f'Se escribió en el log venta de {btc} por {fiat} {currency}')
 
     def atender_nuevo_comercio(self, notificacion, conn):
 
@@ -120,6 +130,16 @@ class Notificador:
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'Revisa {amount}')
             print(enviado_telegram, f' Mensaje para revisar enviado a {currency[0:2]} ')  
+
+    def escribir_log(self, fiat, btc):
+
+        """Escribe los valores de fiat y btc al log"""
+
+        currency, = self.get_atributos('currency')
+
+        with open(f'logs/{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([fiat,btc])
 
     def conectar(self,server='https://localbitcoins.com'):
 

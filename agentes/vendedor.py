@@ -1,23 +1,69 @@
 from .conectar import Connection
+import csv
+import datetime
+import os
 import time
 
 class Vendedor:
 
-    def __init__(self, precio_limite_total, minimo, currency, ad_id,key, secret, parametros, vender_solo):
+    def __init__(self, precio_limite_total, minimo, comision_local, currency, ad_id,key, secret, parametros,porcentaje_btc, vender_solo):
 
         self.precio_limite_total = precio_limite_total
         self.minimo = minimo
+        self.comision_local = comision_local
         self.currency = currency
         self.ad_id = ad_id
         self.key = key
         self.secret = secret
         self.parametros = parametros
+        self.porcentaje_btc = porcentaje_btc
         self.vender_solo = vender_solo
 
     def get_atributos(self, *nombres: str):
         """Retorna los atributos solicitados como una tupla"""
 
         return (self.__dict__[nombre] for nombre in nombres)
+
+    def get_btc_en_scrow(self, conn, currency):
+        
+        response = conn.call(method='GET',url= f'/api/dashboard/')
+        num_contactos = int(response.json()['data']['contact_count'])
+
+        info = {'MX': 0, 'CR': 0}  #SUJETO A REVISION Y CAMBIO POR MAS PAISES
+
+        if num_contactos != 0:
+            for contacto in range(num_contactos):
+
+                currency_interna = response['data']['contact_list'][contacto]['data']['currency']
+                amount_btc = response['contact_list'][contacto]['data']['amount_btc']
+                fee_btc = response['contact_list'][contacto]['data']['fee_btc']
+
+                info[f'{currency_interna[0:2]}'] += float(amount_btc) + float(fee_btc)
+
+            return round(info[f'{currency[0:2]}'],8) if info[f'{currency[0:2]}'] !=0 else 0
+
+        return info[f'{currency[0:2]}']
+
+    def get_total_btc(self, conn):
+
+        """obtiene el total de btc para el currency"""
+        currency, porcentaje_btc = self.get_atributos("currency", "porcentaje_btc")
+        
+        if currency == 'MXN':             #SUJETO A REVISION Y CAMBIO POR MAS PAISES
+            currency_otro = 'CRC'         #SUJETO A REVISION Y CAMBIO POR MAS PAISES
+        else:                             #SUJETO A REVISION Y CAMBIO POR MAS PAISES
+            currency_otro = 'MXN'          #SUJETO A REVISION Y CAMBIO POR MAS PAISES
+
+        response = conn.call(method='GET',url= f'/api/wallet-balance/')
+        balance = response.json()['data']['total']['balance']
+        btc_en_scrow = self.get_btc_en_scrow(currency)
+        btc_en_scrow_otros = self.get_btc_en_scrow(currency_otro)
+        btc_vendidos = self.leer_log(currency)
+        btc_vendidos_otro = self.leer_log(currency_otro)
+
+        total_btc = (balance + btc_vendidos + btc_vendidos_otro + btc_en_scrow + btc_en_scrow_otros) * porcentaje_btc - btc_vendidos - btc_en_scrow 
+
+        return total_btc
 
     def adelantar(self, precio_del_otro, conn):
 
@@ -37,13 +83,12 @@ class Vendedor:
 
         """Adelanta un precio(se pone por debajo)"""
 
-        ad_id, currency, minimo = self.get_atributos("ad_id", "currency", "minimo")
+        ad_id, comision_local, currency,  minimo = self.get_atributos("ad_id", "comision_local","currency",  "minimo")
 
-        precio_anterior, _ , max_anterior = self.precio_actual(conn)
         nuevo_precio = round(precio_del_otro - precio_del_otro*0.00001)
         print(f'El precio a mejorar es {precio_del_otro} {currency}')
-        porcentaje_de_cambio = nuevo_precio / precio_anterior
-        nuevo_maximo = max_anterior * porcentaje_de_cambio
+        total_btc = self.get_total_btc(conn)
+        nuevo_maximo = total_btc * (1.0 - comision_local) * nuevo_precio
         prendida = self.is_active(conn)
         params  = self.informacion_del_anuncio(minimo, nuevo_maximo, nuevo_precio, prendida)
         response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
@@ -93,12 +138,11 @@ class Vendedor:
 
         """Fija el anuncio en un precio determinado"""
 
-        ad_id, currency, minimo = self.get_atributos("ad_id", "currency", "minimo")
+        ad_id, comision_local, currency, minimo = self.get_atributos("ad_id","comision_local", "currency", "minimo")
 
-        precio_anterior, _ , max_anterior = self.precio_actual(conn)
         nuevo_precio = precio_limite
-        porcentaje_de_cambio = nuevo_precio / precio_anterior
-        nuevo_maximo = max_anterior * porcentaje_de_cambio
+        total_btc = self.get_total_btc(conn)
+        nuevo_maximo = total_btc * (1.0 - comision_local) * nuevo_precio
         prendida = self.is_active(conn)
         params  = self.informacion_del_anuncio(minimo, nuevo_maximo, nuevo_precio, prendida)
         response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
@@ -181,6 +225,20 @@ class Vendedor:
         visible = ad['visible']
 
         return visible
+
+    def leer_log(self, currency):
+        """Lee y retorna los valores totales de fiat y btc del log"""
+
+        total_fiat = 0
+        total_btc = 0
+        if os.path.isfile(f'logs/{currency[0:2]}-{str(datetime.datetime.now().date())}.csv'):
+            with open(f'logs/{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', newline='') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    total_fiat += float(row[0])
+                    total_btc += float(row[1])
+        
+        return total_fiat, round(total_btc,8) if total_btc !=0 else 0
 
     def precio_actual(self, conn):
 

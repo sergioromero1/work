@@ -7,6 +7,7 @@ if __name__ == "__main__":
 
     precio_limite_total = float(sys.argv[1])
     minimo = 50
+    comision_local = 0.01
     currency = 'MXN'
     ad_id = '1261529'
     key = MX_KEY
@@ -30,7 +31,8 @@ if __name__ == "__main__":
         'require_identification': True,
         'opening_hours': '[[46, 80], [36, 90], [36, 90], [36, 90], [36, 90], [36, 90], [36, 80]]',
     }
-    vender_solo = False
-    vendedor = Vendedor(precio_limite_total, minimo, currency, ad_id,key, secret, parametros, vender_solo)
+    porcentaje_btc = 2/3
+    vender_solo = True
+    vendedor = Vendedor(precio_limite_total, minimo, comision_local, currency, ad_id,key, secret, parametros,porcentaje_btc, vender_solo)
     vendedor.update_price()
     

@@ -5,6 +5,10 @@ import hmac as hmac_lib
 import requests
 import sys
 import re
+import csv
+import os
+from settings.settings import MX_KEY, MX_SECRET
+
 
 from urllib.parse import urlparse
 
@@ -12,12 +16,38 @@ def conectar(server='https://localbitcoins.com'):
 
     """Se conecta a local bitcoins"""
     
-    hmac_key = 'b32975118459480a9d6b58366e8fd957'
-    hmac_secret = '12dfaeb0f082f7706c89313f6b1de9e7b79c3ce582a07bb708196551f5b263f2'
+    hmac_key = MX_KEY
+    hmac_secret = MX_SECRET
     conn = Connection()
     conn._set_hmac(server, hmac_key, hmac_secret)
     
     return conn
+
+def escribir_log(fiat, btc):
+
+    with open(f'logs/{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([fiat,btc])
+
+def leer_log():
+    total_fiat = 0
+    total_btc = 0
+    with open(f'logs/{str(datetime.datetime.now().date())}.csv', newline='') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            total_fiat += float(row[0])
+            total_btc += float(row[1])
+    
+    return total_fiat, round(total_btc,8)
+
+def crear_log():
+
+    if os.path.isfile('logs/año-mes-dia.csv'):
+        print('gg')
+
+    total_btc = 0
+    total_btc = round(total_btc,8) if total_btc !=0 else 1
+    print( total_btc)
 
 def country_codes():
 
@@ -32,9 +62,14 @@ def country_codes():
 
     # notificaciones = response.json()['data']
     # print(response.json())
-    response = conn.call(method='GET',url= f'/buy-bitcoins-online/CRC/.json')
-    ad = response.json()['data']['ad_list']
-    print(ad)
+    # response = conn.call(method='GET',url= f'/buy-bitcoins-online/CRC/.json')
+    # ad = response.json()['data']['ad_list']
+
+    # response = conn.call(method='GET',url= f'/api/wallet-balance/')
+    response = conn.call(method='GET',url= f'/api/dashboard/')
+
+    
+    print(response.json())
 
 def respond_notification():
 
@@ -83,6 +118,24 @@ def prueba_rapida():
 
     if num_cuenta:
         print(f'hola {cuenta[0]}')
+
+def get_btc_en_scrow(currency):
+    
+    num_contactos = 1
+    info = {'MX': 0, 'CR': 0}  #SUJETO A REVISION Y CAMBIO POR MAS PAISES
+
+    if num_contactos != 0:
+        for contacto in range(num_contactos):
+
+            currency_low = 'CRC'
+            amount_btc = 0.02158956
+            fee_btc = 0.00021584
+
+            info[f'{currency_low[0:2]}'] += float(amount_btc) + float(fee_btc)
+
+        return round(info[f'{currency[0:2]}'],8) if info[f'{currency[0:2]}'] !=0 else 0
+
+    return info[f'{currency[0:2]}']
 
 
 class Connection():
@@ -179,5 +232,5 @@ class Connection():
 
 if __name__ == "__main__":
 
-    country_codes()
-    
+    entrada = get_btc_en_scrow('CRC')
+    print(entrada)
