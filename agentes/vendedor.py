@@ -34,9 +34,9 @@ class Vendedor:
         if num_contactos != 0:
             for contacto in range(num_contactos):
 
-                currency_interna = response['data']['contact_list'][contacto]['data']['currency']
-                amount_btc = response['contact_list'][contacto]['data']['amount_btc']
-                fee_btc = response['contact_list'][contacto]['data']['fee_btc']
+                currency_interna = response.json()['data']['contact_list'][contacto]['data']['currency']
+                amount_btc = response.json()['data']['contact_list'][contacto]['data']['amount_btc']
+                fee_btc = response.json()['data']['contact_list'][contacto]['data']['fee_btc']
 
                 info[f'{currency_interna[0:2]}'] += float(amount_btc) + float(fee_btc)
 
@@ -56,12 +56,12 @@ class Vendedor:
 
         response = conn.call(method='GET',url= f'/api/wallet-balance/')
         balance = response.json()['data']['total']['balance']
-        btc_en_scrow = self.get_btc_en_scrow(currency)
-        btc_en_scrow_otros = self.get_btc_en_scrow(currency_otro)
+        btc_en_scrow = self.get_btc_en_scrow(conn, currency)
+        btc_en_scrow_otros = self.get_btc_en_scrow(conn, currency_otro)
         btc_vendidos = self.leer_log(currency)
         btc_vendidos_otro = self.leer_log(currency_otro)
 
-        total_btc = (balance + btc_vendidos + btc_vendidos_otro + btc_en_scrow + btc_en_scrow_otros) * porcentaje_btc - btc_vendidos - btc_en_scrow 
+        total_btc = round((float(balance) + float(btc_vendidos) + float(btc_vendidos_otro) + float(btc_en_scrow) + float(btc_en_scrow_otros)) * porcentaje_btc,8) - float(btc_vendidos) - float(btc_en_scrow) 
 
         return total_btc
 
@@ -238,7 +238,7 @@ class Vendedor:
                     total_fiat += float(row[0])
                     total_btc += float(row[1])
         
-        return total_fiat, round(total_btc,8) if total_btc !=0 else 0
+        return round(total_btc,8) if total_btc !=0 else 0
 
     def precio_actual(self, conn):
 

@@ -6,7 +6,7 @@ import sys
 if __name__ == "__main__":
 
     precio_limite_total = float(sys.argv[1])
-    minimo = 10000
+    minimo = 5000
     comision_local = 0.01
     currency = 'CRC'
     ad_id = '1381456'
