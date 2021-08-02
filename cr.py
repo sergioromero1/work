@@ -31,7 +31,7 @@ if __name__ == "__main__":
         'opening_hours': '[[46, 80], [36, 90], [36, 90], [36, 90], [36, 90], [36, 90], [36, 80]]'
     }
     porcentaje_btc = 1/3
-    vender_solo = True
+    vender_solo = False
     vendedor = Vendedor(precio_limite_total, minimo, comision_local, currency, ad_id,key, secret, parametros,porcentaje_btc, vender_solo)
     vendedor.update_price()
     

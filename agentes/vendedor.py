@@ -35,10 +35,11 @@ class Vendedor:
             for contacto in range(num_contactos):
 
                 currency_interna = response.json()['data']['contact_list'][contacto]['data']['currency']
-                amount_btc = response.json()['data']['contact_list'][contacto]['data']['amount_btc']
-                fee_btc = response.json()['data']['contact_list'][contacto]['data']['fee_btc']
+                if currency_interna != 'COP':
+                    amount_btc = response.json()['data']['contact_list'][contacto]['data']['amount_btc']
+                    fee_btc = response.json()['data']['contact_list'][contacto]['data']['fee_btc']
 
-                info[f'{currency_interna[0:2]}'] += float(amount_btc) + float(fee_btc)
+                    info[f'{currency_interna[0:2]}'] += float(amount_btc) + float(fee_btc)
 
             return round(info[f'{currency[0:2]}'],8) if info[f'{currency[0:2]}'] !=0 else 0
 
