@@ -162,7 +162,8 @@ class Notificador:
     def get_message_btc_liberados(self):
         """Devuelve el mensaje después de liberar los BTC"""
         
-        mensaje = 'Liberados gracias por tu compra y por calificar'
+        mensaje = 'Liberados gracias por tu compra y por calificar. \n' \
+        'Si ya calificaste ha sido un placer negociar contigo de nuevo.'
         
         return  mensaje
 

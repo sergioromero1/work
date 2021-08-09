@@ -41,75 +41,42 @@ def precio_de_colombia(conn):
     currency = 'COP'
     response = conn.call(method='GET',url= f'/sell-bitcoins-online/{currency}/.json')
     ad = response.json()['data']['ad_list']
-    primer_precio = float(ad[2]['data']['temp_price'])
-
-    return primer_precio
-
-def precio_de_colombia_comun(conn):
-
-    currency = 'COP'
-    response = conn.call(method='GET',url= f'/buy-bitcoins-online/{currency}/.json')
-    ad = response.json()['data']['ad_list']
     primer_precio = float(ad[0]['data']['temp_price'])
 
     return primer_precio
 
-def margen_costa_rica(conn, precio_compra_CRC, currency, mi_max, mi_min):
+def margen(conn, precio_compra, currency, mi_max, mi_min):
 
-    """Retorna el margen de Costa Rica"""
+    """Retorna el margen """
 
-    currency = 'CRC'
-    response = conn.call(method='GET',url= f'/buy-bitcoins-online/{currency}/.json')
-    ad = response.json()['data']['ad_list']
-    info = informacion_comerciantes(conn, currency)
-    for puesto,datos in info.items():
-        if mi_max >= datos['min_amount'] and mi_min <= datos['max_amount'] and datos['name'] != 'sromero':
-            puesto_a_superar = str(puesto)
-            break
-
-    primer_precio_CRC = info[f'{puesto_a_superar}']['price']
-    print(primer_precio_CRC)
-    margen = primer_precio_CRC / precio_compra_CRC
-    return margen
-
-def margen_mexico(conn, precio_compra_MXN, currency, mi_max, mi_min):
-
-    """Retorna el margen de Mexico"""
-
-    currency = 'MXN'
-    response = conn.call(method='GET',url= f'/buy-bitcoins-online/{currency}/.json')
-    ad = response.json()['data']['ad_list']
     info = informacion_comerciantes(conn, currency)
     for puesto,datos in info.items():
         if mi_max >= datos['min_amount'] and mi_min <= datos['max_amount'] and datos['name'] != 'sromero':
             puesto_a_superar = str(puesto)
             break
     
-    primer_precio_MXN = info[f'{puesto_a_superar}']['price']
+    primer_precio = info[f'{puesto_a_superar}']['price']
 
-    margen = primer_precio_MXN / precio_compra_MXN
+    margen = primer_precio / precio_compra
 
     return margen
 
-def margenes():
+def margenes(precio_MXN,precio_CRC):
 
     """Retorna el valor de los margenes de MEX y CRC
     """
     
-    precio_MXN = float(input('Precio MXN: '))
-    precio_CRC = float(input('Precio CRC: '))
     mi_min_mx = 100 
     mi_min_cr = 5000
-    mi_max_mx = 5000
-    mi_max_cr = 100000
+    mi_max_mx = 10000
+    mi_max_cr = 160000
 
     conn = conectar()
     precio_colombia = precio_de_colombia(conn)
-    print(precio_colombia)
     precio_compra_MXN = precio_colombia / precio_MXN
     precio_compra_CRC = precio_colombia / precio_CRC
-    m_mexico = margen_mexico(conn, precio_compra_MXN, 'MXN',mi_max_mx, mi_min_mx)
-    m_costa_rica = margen_costa_rica(conn, precio_compra_CRC, 'CRC',mi_max_cr,mi_min_cr)
+    m_mexico = margen(conn, precio_compra_MXN, 'MXN',mi_max_mx, mi_min_mx)
+    m_costa_rica = margen(conn, precio_compra_CRC, 'CRC',mi_max_cr,mi_min_cr)
     print(f'\nMargen de México = {m_mexico}..\n')
     print(f'\nMargen de CR = {m_costa_rica}..\n')
 
@@ -201,8 +168,9 @@ class Connection():
         self.hmac_secret = hmac_secret.encode('ascii')
 
 if __name__ == "__main__":
-
-    margenes()
+    precio_MXN= float(sys.argv[1])
+    precio_CRC= float(sys.argv[2])
+    margenes(precio_MXN, precio_CRC)
     
 
 

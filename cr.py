@@ -6,7 +6,7 @@ import sys
 if __name__ == "__main__":
 
     precio_limite_total = float(sys.argv[1])
-    minimo = 5000
+    minimo = 1000
     comision_local = 0.01
     currency = 'CRC'
     ad_id = '1381456'
@@ -31,7 +31,7 @@ if __name__ == "__main__":
         'opening_hours': '[[46, 80], [36, 90], [36, 90], [36, 90], [36, 90], [36, 90], [36, 80]]'
     }
     porcentaje_btc = 1/3
-    vender_solo = False
+    vender_solo = True
     vendedor = Vendedor(precio_limite_total, minimo, comision_local, currency, ad_id,key, secret, parametros,porcentaje_btc, vender_solo)
     vendedor.update_price()
     
