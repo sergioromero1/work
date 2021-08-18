@@ -1,4 +1,4 @@
-class color:
+class Color:
    PURPLE = '\033[1;35;48m'
    CYAN = '\033[1;36;48m'
    BOLD = '\033[1;37;48m'
@@ -10,5 +10,5 @@ class color:
    UNDERLINE = '\033[4;37;48m'
    END = '\033[1;37;0m'
 
-print(color.YELLOW + "hello" + color.END)
+# print(Color.YELLOW + "hello" + Color.END)
 

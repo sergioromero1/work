@@ -1,5 +1,7 @@
 from agentes.vendedor import Vendedor
 from settings.settings import CR_KEY, CR_SECRET
+import time
+
 
 import sys
 
@@ -28,10 +30,11 @@ if __name__ == "__main__":
         'track_max_amount': True,
         'require_trusted_by_advertiser': False,
         'require_identification': True,
-        'opening_hours': '[[46, 80], [36, 90], [36, 90], [36, 90], [36, 90], [36, 90], [36, 80]]'
+        'opening_hours': '[[46, 80], [36, 90], [36, 90], [34, 90], [36, 90], [36, 90], [36, 80]]'
     }
-    porcentaje_btc = 1/3
-    vender_solo = True
+    porcentaje_btc = 0.036063
+    vender_solo = False
     vendedor = Vendedor(precio_limite_total, minimo, comision_local, currency, ad_id,key, secret, parametros,porcentaje_btc, vender_solo)
     vendedor.update_price()
+
     

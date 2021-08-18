@@ -1,4 +1,8 @@
+from decoradores.loop import loop
 from .conectar import Connection
+from utils.color import Color
+
+
 import csv
 import datetime
 import requests
@@ -48,7 +52,7 @@ class Notificador:
             fiat = contact_info['amount']
             btc = float(contact_info['amount_btc']) + float(contact_info['fee_btc'])
             self.escribir_log(fiat, btc)
-            print(f'Se escribió en el log venta de {btc} por {fiat} {currency}')
+            print(self.con_color(f'Se escribió en el log venta de {btc} por {fiat} {currency}'))
 
     def atender_nuevo_comercio(self, notificacion, conn):
 
@@ -97,7 +101,7 @@ class Notificador:
 
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'Revisa {amount}')
-            print(enviado_telegram, f' Mensaje para revisar enviado a {currency[0:2]} ')        
+            print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]} ')        )
 
     def atender_nuevo_mensaje(self, notificacion, conn):
 
@@ -129,7 +133,7 @@ class Notificador:
             print(enviar_mensaje.json(), ' Mensaje de venta completada enviado')
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'Revisa {amount}')
-            print(enviado_telegram, f' Mensaje para revisar enviado a {currency[0:2]} ')  
+            print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]}'))
 
     def escribir_log(self, fiat, btc):
 
@@ -140,6 +144,9 @@ class Notificador:
         with open(f'logs/{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
             writer = csv.writer(f)
             writer.writerow([fiat,btc])
+
+    def con_color(self, string):
+        return Color.BLUE + string + Color.END
 
     def conectar(self,server='https://localbitcoins.com'):
 
@@ -196,6 +203,7 @@ class Notificador:
         
         return str(ad_id)
 
+    @loop
     def iniciar(self):
 
         sleep_time = int(self.sleep_time)
@@ -225,7 +233,7 @@ class Notificador:
         """Atiende las notificaciones"""
 
         id_ad, currency = self.get_atributos("id_ad", "currency")
-        print(f'Revisando notificaciones...{currency[0:2]}')
+        print(self.con_color(f'Revisando notificaciones...{currency[0:2]}'))
         start_time = time.time()
         conn = self.conectar()
         response = conn.call(method='GET', url='/api/notifications/')
@@ -339,7 +347,7 @@ class NotificadorCompra(Notificador):
         if num_cuenta:
 
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje_cuenta_ident}'})
-            print(enviar_mensaje.json(), ' Mensaje de cuenta identificada enviado')
+            print(enviar_mensaje.json(), self.con_color(' Mensaje de cuenta identificada enviado'))
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'ahoros {cuenta[0]}\n {amount}')
             print(enviado_telegram, ' Mensaje de compra enviado a telegram ')
@@ -382,7 +390,7 @@ class NotificadorCompra(Notificador):
 
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'ahoros {cuenta[0]}\n {amount}')
-            print(enviado_telegram, ' Mensaje de compra enviado a telegram ')
+            print(enviado_telegram, self.con_color(' Mensaje de compra enviado a telegram '))
 
     def get_message_btc_liberados(self):
 
@@ -410,7 +418,7 @@ class NotificadorCompra(Notificador):
         """Atiende las notificaciones"""
 
         id_ad, currency = self.get_atributos("id_ad", "currency")
-        print(f'Revisando notificaciones...{currency[0:2]}')
+        print(self.con_color(f'Revisando notificaciones...{currency[0:2]}'))
         start_time = time.time()
         conn = self.conectar()
         response = conn.call(method='GET', url='/api/notifications/')

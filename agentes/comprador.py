@@ -1,4 +1,6 @@
 from .conectar import Connection
+from utils.color import Color
+from decoradores.loop import loop
 import time
 
 class Comprador:
@@ -26,9 +28,12 @@ class Comprador:
         print(f'El precio a mejorar es {precio_del_otro} {currency}')
         response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
         mi_nuevo_precio = self.precio_actual(conn)
-        print(response.json(), f'Precio adelantado, Mi nuevo precio es {mi_nuevo_precio} {currency}')
+        print(response.json(), self.con_color(f'Precio adelantado, Mi nuevo precio es {mi_nuevo_precio} {currency}'))
 
         return mi_nuevo_precio
+
+    def con_color(self, string):
+        return Color.BLUE + string + Color.END
 
     def conectar(self,server='https://localbitcoins.com'):
 
@@ -86,7 +91,8 @@ class Comprador:
         precio_actual = float(ad['temp_price'])
         
         return precio_actual, min_amount, max_amount
-
+    
+    @loop
     def update_price(self):
 
         """Actualiza el precio teniendo en cuenta la

@@ -1,4 +1,6 @@
 from .conectar import Connection
+from decoradores.loop import loop
+from utils.color import Color
 import csv
 import datetime
 import os
@@ -76,7 +78,7 @@ class Vendedor:
         print(f'El precio a mejorar es {precio_del_otro} {currency}')
         response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
         mi_nuevo_precio = self.precio_actual(conn)
-        print(response.json(), f'Precio adelantado, Mi nuevo precio es {mi_nuevo_precio} {currency}')
+        print(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'))
 
         return mi_nuevo_precio
 
@@ -94,7 +96,7 @@ class Vendedor:
         params  = self.informacion_del_anuncio(minimo, nuevo_maximo, nuevo_precio, prendida)
         response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
         mi_nuevo_precio = self.precio_actual(conn)
-        print(response.json(), f'Precio adelantado, Mi nuevo precio es {mi_nuevo_precio} {currency}')
+        print(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'))
 
         return mi_nuevo_precio
 
@@ -107,6 +109,9 @@ class Vendedor:
         conn._set_hmac(server, key, secret)
         
         return conn
+
+    def con_color(self, string):
+        return Color.BLUE + string + Color.END
 
     def descansar(self, conn):
 
@@ -121,7 +126,7 @@ class Vendedor:
         else:
             self.adelantar_beta(precio_cuarto, conn)
 
-        print('\nresting...\n')
+        print(self.con_color('\nresting...\n'))
         time.sleep(420)
 
     def fijar(self,precio_limite, conn):
@@ -261,7 +266,7 @@ class Vendedor:
 
         currency,  = self.get_atributos("currency")
 
-        print(f'Precio limite total de {precio_limite_total} {currency} alcanzado')
+        print(self.con_color(f'Precio limite total de {precio_limite_total} {currency} alcanzado'))
         if self.vender_solo:
             self.fijar(precio_limite_total + 1, conn)
         else:
@@ -291,6 +296,7 @@ class Vendedor:
 
         return mi_nuevo_precio
 
+    @loop
     def update_price(self):
 
         """Actualiza el precio teniendo en cuenta un precio limite 
