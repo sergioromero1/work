@@ -10,9 +10,6 @@ if __name__ == "__main__":
     receptores = {'kozel': 'BAC \n Fernando Josue Kozel Borbon \n\n Numero de cuenta Bac \n 941235723  \n\n Número de cuenta IBAN \n '\
                         'CR36010200009412357238\n\n SINPE MOVIL: 63847393 \n\n En el concepto/referencia escribe: Servicios tecnicos',
 
-                    'jacque': 'BAC \n JACQUELINE SOLIS HIDALGO \n\n Numero de cuenta Bac \n 947448148  \n\n Número de cuenta IBAN \n '\
-                        'CR89010200009474481486	\n\n No SINPE MOVIL por el momento \n\n En el concepto/referencia escribe: Servicios tecnicos',
-
                     'leo': 'BAC \n Leonel Moises Arley Esteller \n\n Numero de cuenta Bac \n 947162996  \n\n Número de cuenta IBAN \n '\
                         'CR25010200009471629965\n\n SINPE MOVIL: 62803209 \n\n En el concepto/referencia escribe: Servicios tecnicos',
 
@@ -22,7 +19,7 @@ if __name__ == "__main__":
                     'jose': 'BAC \n JOSE JUAN CAMPOS ALVAREZ \n\n Numero de cuenta Bac \n 947449476  \n\n Número de cuenta IBAN \n '\
                         'CR14010200009474494767\n\n SINPE MOVIL: 62765267 \n\n En el concepto/referencia escribe: Servicios tecnicos',
 
-                    'leo2': 'BN \n ARLEY ESTELLER LEONEL MOI \n\n Numero de cuenta cliente \n 15101620010451793  \n\n Número de cuenta IBAN \n '\
+                    'leo2': 'BN \n ARLEY ESTELLER LEONEL MOI \n\n Numero de cuenta cliente \n 200-01-016-045179-3  \n\n Número de cuenta IBAN \n '\
                         'CR88015101620010451793\n\n No SINPE MOVIL por el momento \n\n En el concepto/referencia escribe: Servicios tecnicos'
                 
                     }
