@@ -92,6 +92,19 @@ class Comprador:
         
         return precio_actual, min_amount, max_amount
     
+    def recorrer_puestos(self,info):
+        
+        """Recorre las posiciones para saber donde ubicarse y se ubica en la 
+            mejor oferta de precio
+        """
+
+        for puesto,datos in info.items():
+            if datos['name'] != 'sromero':
+                puesto_a_superar = str(puesto)
+                break
+
+        return puesto_a_superar
+
     @loop
     def update_price(self):
 
@@ -106,6 +119,9 @@ class Comprador:
 
             print(f'\nrunning...{currency[0:2]}\n')
             info = self.informacion_comerciantes(conn)
-
-            self.adelantar(info[f'{posicion}']['price'],conn)
+            puesto_a_superar = self.recorrer_puestos(info)
+            if posicion == 'primero':
+                self.adelantar(info[f'{puesto_a_superar}']['price'],conn)
+            else:
+                self.adelantar(info[f'{posicion}']['price'],conn)
             time.sleep(120)
