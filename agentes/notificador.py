@@ -2,7 +2,6 @@ from decoradores.loop import loop
 from .conectar import Connection
 from utils.color import Color
 
-
 import csv
 import datetime
 import requests
@@ -76,7 +75,7 @@ class Notificador:
     def atender_marcado_como_pagado(self,notificacion, conn):
 
         """Atiende la notificacion de marcado como pagado"""
-        currency, = self.get_atributos('currency')
+        currency, receptor = self.get_atributos('currency', 'receptor')
         mensaje = self.get_message_venta_completada()
 
         attachment = False
@@ -100,13 +99,13 @@ class Notificador:
             print(enviar_mensaje.json(), ' Mensaje de venta completada enviado')
 
             amount = contact_info['amount'] + ' ' + contact_info['currency']
-            enviado_telegram = self.sendtext(f'Revisa {amount}')
+            enviado_telegram = self.sendtext(f'Revisa {amount} en la cuenta de {receptor}')
             print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]} ')        )
 
     def atender_nuevo_mensaje(self, notificacion, conn):
 
         """Atiende un mensaje nuevo"""
-        currency, = self.get_atributos('currency')
+        currency,receptor = self.get_atributos('currency', 'receptor')
         mensaje = self.get_message_venta_completada()
 
         attachment = False
@@ -132,7 +131,7 @@ class Notificador:
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
             print(enviar_mensaje.json(), ' Mensaje de venta completada enviado')
             amount = contact_info['amount'] + ' ' + contact_info['currency']
-            enviado_telegram = self.sendtext(f'Revisa {amount}')
+            enviado_telegram = self.sendtext(f'Revisa {amount} en la cuenta de {receptor}')
             print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]}'))
 
     def escribir_log(self, fiat, btc):
@@ -410,7 +409,7 @@ class NotificadorCompra(Notificador):
         
         """Devuelve el mensaje para nuevo comercio"""
 
-        return ' cuales son los datos de cuenta Bancolombia para transferir?'
+        return 'Hola cuales son los datos de cuenta para transferir?'
 
     def respond_notifications(self):
 
@@ -458,7 +457,7 @@ class NotificadorCompra(Notificador):
         print(self.format_time(duracion))
 
     def sendtext(self, bot_message):
-        
+
         bot_token, verificador = self.get_atributos("bot_token","verificador")
         persona_id = verificador
 
@@ -467,3 +466,101 @@ class NotificadorCompra(Notificador):
         response = requests.post(send_text)
 
         return response.json()['ok']
+
+class NotificadorCompraCostaRica(NotificadorCompra):
+
+    def atender_nuevo_comercio(self, notificacion, conn):
+
+        """Atiende la notificacion de 'tiene un nuevo comercio'"""
+
+        num_cuenta = False
+        
+        mensaje_cuenta_ident = self.get_message_cuenta_identificada()
+        mensaje = self.get_message_nuevo_comercio()
+        contact_id = notificacion['contact_id']
+        notification_id = notificacion['id']
+        contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
+        contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
+        marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
+        print(marcar_como_leida.json(), ' Notif leida Nuevo comercio de compra')
+        
+        if self.is_afternoon():
+            saludo = 'Buenas tardes \n'
+        else:
+            saludo = 'Buenos días \n'
+
+        cuenta1 = ''
+        cuenta2 = ''
+        cuenta3 = ''
+
+        for message in contact_messages:
+            sinpe = re.search(r'\D\D\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d\s\D', message['msg'])
+            iban = re.search(r'CR([-\s]?\d{4}){5}', message['msg'])
+            bac = re.search(r'(\d[-\s]?){9}', message['msg'])
+
+            if sinpe:
+                num_cuenta = True
+                cuenta1 = 'SINPE ' + sinpe[0]
+            if iban:
+                num_cuenta = True
+                cuenta2 = 'IBAN ' + iban[0]
+            if bac:
+                num_cuenta = True
+                cuenta3 = 'BAC ' + bac[0]
+
+        if num_cuenta:
+
+            enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje_cuenta_ident}'})
+            print(enviar_mensaje.json(), self.con_color(' Mensaje de cuenta identificada enviado'))
+            amount = contact_info['amount'] + ' ' + contact_info['currency']
+            enviado_telegram = self.sendtext(f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}')
+            print(enviado_telegram, ' Mensaje de compra enviado a telegram ')
+
+        else:
+
+            enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{saludo} {mensaje}'})
+            print(enviar_mensaje.json(), 'Compra Mensaje nuevo comercio enviado')
+
+    def atender_nuevo_mensaje(self, notificacion, conn):
+
+        """Atiende un mensaje nuevo"""
+
+        mensaje = self.get_message_cuenta_identificada()
+
+        num_cuenta = False
+        enviado = False
+        contact_id = notificacion['contact_id']
+        notification_id = notificacion['id']
+        contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
+        contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
+        marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
+        print(marcar_como_leida.json(), ' Notif leida nuevo mensaje o comprobante')
+
+        cuenta1 = ''
+        cuenta2 = ''
+        cuenta3 = ''
+        
+        for message in contact_messages:
+            if message['msg'][0:4] == mensaje[0:4]:
+                enviado = True
+            sinpe = re.search(r'\D\D\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d\s\D', message['msg'])
+            iban = re.search(r'CR([-\s]?\d{4}){5}', message['msg'])
+            bac = re.search(r'(\d[-\s]?){9}', message['msg'])
+
+            if sinpe:
+                num_cuenta = True
+                cuenta1 = 'SINPE ' + sinpe[0]
+            if iban:
+                num_cuenta = True
+                cuenta2 = 'IBAN ' + iban[0]
+            if bac:
+                num_cuenta = True
+                cuenta3 = 'BAC ' + bac[0]
+
+        if num_cuenta and not enviado:
+            enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
+            print(enviar_mensaje.json(), ' Mensaje de cuenta identificada enviado')
+
+            amount = contact_info['amount'] + ' ' + contact_info['currency']
+            enviado_telegram = self.sendtext(f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}')
+            print(enviado_telegram, self.con_color(' Mensaje de compra enviado a telegram '))
