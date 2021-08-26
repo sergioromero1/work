@@ -496,7 +496,7 @@ class NotificadorCompraCostaRica(NotificadorCompra):
         for message in contact_messages:
             sinpe = re.search(r'\D\D\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d\s\D', message['msg'])
             iban = re.search(r'CR([-\s]?\d{4}){5}', message['msg'])
-            bac = re.search(r'(\d[-\s]?){9}', message['msg'])
+            bac = re.search(r'\D\D\d[-\s]?\d[-\s]?d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d\s\D', message['msg'])
 
             if sinpe:
                 num_cuenta = True

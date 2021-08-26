@@ -7,6 +7,6 @@ def loop(func):
             try:
                 func(self)
             except (ValueError, ConnectionError, JSONDecodeError):
-                time.sleep(30)
+                time.sleep(180)
                 func(self)
     return wrapper
