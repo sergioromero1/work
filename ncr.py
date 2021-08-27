@@ -19,8 +19,8 @@ if __name__ == "__main__":
                     'jose': 'BAC \n JOSE JUAN CAMPOS ALVAREZ \n\n Numero de cuenta Bac \n 947449476  \n\n Número de cuenta IBAN \n '\
                         'CR14010200009474494767\n\n SINPE MOVIL: 62765267 \n\n En el concepto/referencia escribe: Servicios tecnicos',
 
-                    'leo2': 'BN \n ARLEY ESTELLER LEONEL MOI \n\n Numero de cuenta cliente \n 200-01-016-045179-3  \n\n Número de cuenta IBAN \n '\
-                        'CR88015101620010451793\n\n No SINPE MOVIL por el momento \n\n En el concepto/referencia escribe: Servicios tecnicos'
+                    'leo2': 'BN \n Leonel Moises Arley Esteller \n\n Numero de cuenta cliente \n 200-01-016-045179-3  \n\n Número de cuenta IBAN \n '\
+                        'CR88015101620010451793\n\n SINPE MOVIL 61691986 \n\n En el concepto/referencia escribe: Servicios tecnicos'
                 
                     }
     verificador = '1526093626' #kozel
