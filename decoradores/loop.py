@@ -8,5 +8,4 @@ def loop(func):
                 func(self)
             except (ValueError, ConnectionError, JSONDecodeError):
                 time.sleep(180)
-                func(self)
     return wrapper
