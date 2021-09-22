@@ -20,8 +20,10 @@ if __name__ == "__main__":
                         'CR14010200009474494767\n\n SINPE MOVIL: 62765267 \n\n En el concepto/referencia escribe: Servicios tecnicos',
 
                     'leo2': 'BN \n Leonel Moises Arley Esteller \n\n Numero de cuenta cliente \n 200-01-016-045179-3  \n\n Número de cuenta IBAN \n '\
-                        'CR88015101620010451793\n\n SINPE MOVIL 61691986 \n\n En el concepto/referencia escribe: Servicios tecnicos'
-                
+                        'CR88015101620010451793\n\n SINPE MOVIL 61691986 \n\n En el concepto/referencia escribe: Servicios tecnicos',
+
+                    'papa': 'BCR \n Fernando Delgado Solis \n\n Número de cuenta IBAN \n '\
+                        'CR63015202001238749106\n\n Si es por SINPE MOVIL 61342921\n A nombre de Briceidy Borbon Picado \n\n En el concepto/referencia escribe: Servicios tecnicos'
                     }
     verificador = '1526093626' #kozel
     key = CR_KEY

@@ -138,9 +138,9 @@ class Notificador:
 
         """Escribe los valores de fiat y btc al log"""
 
-        currency, = self.get_atributos('currency')
+        currency, = self.get_atributos("currency")
 
-        with open(f'logs/{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
+        with open(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
             writer = csv.writer(f)
             writer.writerow([fiat,btc])
 
@@ -270,7 +270,7 @@ class Notificador:
                     continue
 
                 if notif_time < 60 and notificacion['msg'][0:12] == 'Ha realizado':
-
+                    
                     ad_id = self.identificar_ad_id(notificacion, conn)
                     if ad_id==id_ad:
                         self.atender_final_venta(notificacion, conn)
@@ -299,11 +299,13 @@ class NotificadorCompra(Notificador):
     def atender_final_compra(self, notificacion, conn):
         
         mensaje = self.get_message_btc_liberados()
+        currency, = self.get_atributos("currency")
 
         enviado = False
 
         contact_id = notificacion['contact_id']
         contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
+        contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
         
         for message in contact_messages:
             if message['msg'][0:13] == mensaje[0:13]:
@@ -312,6 +314,10 @@ class NotificadorCompra(Notificador):
         if not enviado:
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})        
             print(enviar_mensaje.json(), ' Mensaje Final de venta enviado')
+            fiat = contact_info['amount']
+            btc = float(contact_info['amount_btc']) - float(contact_info['fee_btc'])
+            self.escribir_log(fiat, btc)
+            print(self.con_color(f'Se escribió en el log compra de {btc} por {fiat} {currency}'))
 
     def atender_nuevo_comercio(self, notificacion, conn):
 
@@ -391,6 +397,16 @@ class NotificadorCompra(Notificador):
             enviado_telegram = self.sendtext(f'ahoros {cuenta[0]}\n {amount}')
             print(enviado_telegram, self.con_color(' Mensaje de compra enviado a telegram '))
 
+    def escribir_log(self, fiat, btc):
+
+        """Escribe los valores de fiat y btc al log"""
+
+        currency, = self.get_atributos("currency")
+
+        with open(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([fiat,btc])
+
     def get_message_btc_liberados(self):
 
         """Devuelve el mensaje después de comprar los BTC"""
@@ -403,7 +419,7 @@ class NotificadorCompra(Notificador):
 
         """Devuelve el mensaje cuando identifica la cuenta a consignar"""
 
-        return 'Procedo'
+        return 'Procedo teniendo en cuenta que has leido los terminos del comercio'
 
     def get_message_nuevo_comercio(self):
         
@@ -446,7 +462,7 @@ class NotificadorCompra(Notificador):
 
                     continue
 
-                if notif_time < 60 and notificacion['msg'][0:12] == 'Ha realizado':
+                if notif_time < 120 and notificacion['msg'][0:12] == 'Ha realizado':
 
                     ad_id = self.identificar_ad_id(notificacion, conn)
                     if ad_id==id_ad:

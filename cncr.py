@@ -13,5 +13,3 @@ if __name__ == "__main__":
     bot_token = BOT_TOKEN
     notificador = NotificadorCompraCostaRica(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador) 
     notificador.iniciar()
-        
-    

@@ -8,7 +8,7 @@ import time
 
 class Vendedor:
 
-    def __init__(self, precio_limite_total, minimo, comision_local, currency, ad_id,key, secret, parametros,porcentaje_btc, vender_solo):
+    def __init__(self, precio_limite_total, minimo, comision_local, currency, ad_id,key, secret, parametros,currency_compra, vender_solo):
 
         self.precio_limite_total = precio_limite_total
         self.minimo = minimo
@@ -18,7 +18,7 @@ class Vendedor:
         self.key = key
         self.secret = secret
         self.parametros = parametros
-        self.porcentaje_btc = porcentaje_btc
+        self.currency_compra = currency_compra
         self.vender_solo = vender_solo
 
     def get_atributos(self, *nombres: str):
@@ -31,40 +31,61 @@ class Vendedor:
         response = conn.call(method='GET',url= f'/api/dashboard/')
         num_contactos = int(response.json()['data']['contact_count'])
 
-        info = {'MX': 0, 'CR': 0}  #SUJETO A REVISION Y CAMBIO POR MAS PAISES
+        info = {f'{currency[0:2]}':0}  
 
         if num_contactos != 0:
             for contacto in range(num_contactos):
+                currency_contacto = response.json()['data']['contact_list'][contacto]['data']['currency']
+                if currency_contacto == currency:
+                    if response.json()['data']['contact_list'][contacto]['data']['is_selling']:
+                        amount_btc = response.json()['data']['contact_list'][contacto]['data']['amount_btc']
+                        fee_btc = response.json()['data']['contact_list'][contacto]['data']['fee_btc']
 
-                currency_interna = response.json()['data']['contact_list'][contacto]['data']['currency']
-                if currency_interna != 'COP':
-                    amount_btc = response.json()['data']['contact_list'][contacto]['data']['amount_btc']
-                    fee_btc = response.json()['data']['contact_list'][contacto]['data']['fee_btc']
-
-                    info[f'{currency_interna[0:2]}'] += float(amount_btc) + float(fee_btc)
+                        info[f'{currency[0:2]}'] += float(amount_btc) + float(fee_btc)
 
             return round(info[f'{currency[0:2]}'],8) if info[f'{currency[0:2]}'] !=0 else 0
 
         return info[f'{currency[0:2]}']
 
+    def get_saldo_dia_anterior(self,currency):
+        """Lee y retorna los valores totales de btc sin vender del dia anterior"""
+        currency, currency_compra = self.get_atributos("currency", "currency_compra")
+
+
+        total_btc_compra = 0
+        if os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv'):
+            with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv', newline='') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    total_btc_compra += float(row[1])
+        
+        total_btc_venta = 0
+        if os.path.isfile(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv'):
+            with open(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv', newline='') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    total_btc_venta += float(row[1])
+
+        total_btc = total_btc_compra - total_btc_venta
+        
+        return round(total_btc,8) if total_btc > 0.00007 else 0
+
     def get_total_btc(self, conn):
 
         """obtiene el total de btc para el currency"""
-        currency, porcentaje_btc = self.get_atributos("currency", "porcentaje_btc")
+        currency, currency_compra = self.get_atributos("currency", "currency_compra")
+                
+        if not os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv'):
+            btc_saldo_dia_anterior = self.get_saldo_dia_anterior(currency)
+            with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([0,btc_saldo_dia_anterior])
         
-        if currency == 'MXN':             #SUJETO A REVISION Y CAMBIO POR MAS PAISES
-            currency_otro = 'CRC'         #SUJETO A REVISION Y CAMBIO POR MAS PAISES
-        else:                             #SUJETO A REVISION Y CAMBIO POR MAS PAISES
-            currency_otro = 'MXN'          #SUJETO A REVISION Y CAMBIO POR MAS PAISES
-
-        response = conn.call(method='GET',url= f'/api/wallet-balance/')
-        balance = response.json()['data']['total']['balance']
-        btc_en_scrow = self.get_btc_en_scrow(conn, currency)
-        btc_en_scrow_otros = self.get_btc_en_scrow(conn, currency_otro)
+        btc_comprados = self.leer_log_compra(currency_compra)
         btc_vendidos = self.leer_log(currency)
-        btc_vendidos_otro = self.leer_log(currency_otro)
+        btc_en_scrow = self.get_btc_en_scrow(conn, currency)
 
-        total_btc = round((float(balance) + float(btc_vendidos) + float(btc_vendidos_otro) + float(btc_en_scrow) + float(btc_en_scrow_otros)) * porcentaje_btc,8) - float(btc_vendidos) - float(btc_en_scrow) 
+        total_btc = round(float(btc_comprados)-float(btc_vendidos)-float(btc_en_scrow),8)
 
         return total_btc
 
@@ -175,7 +196,8 @@ class Vendedor:
 
         response = conn.call(method='GET',url= f'/buy-bitcoins-online/{currency}/.json')
         ad = response.json()['data']['ad_list']
-        info = {'primero':{}, 'segundo':{}, 'tercero':{}, 'cuarto':{}, 'quinto':{}, 'sexto':{}}
+        # info = {'primero':{}, 'segundo':{}, 'tercero':{}, 'cuarto':{}, 'quinto':{}, 'sexto':{}, 'septimo':{}, 'octavo':{}, 'noveno':{}}
+        info = {'primero':{}, 'segundo':{}, 'tercero':{}, 'cuarto':{}, 'quinto':{}}
         position = 0
 
         for inside_dict in info.values():
@@ -235,13 +257,23 @@ class Vendedor:
     def leer_log(self, currency):
         """Lee y retorna los valores totales de fiat y btc del log"""
 
-        total_fiat = 0
         total_btc = 0
-        if os.path.isfile(f'logs/{currency[0:2]}-{str(datetime.datetime.now().date())}.csv'):
-            with open(f'logs/{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', newline='') as f:
+        if os.path.isfile(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv'):
+            with open(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', newline='') as f:
                 reader = csv.reader(f)
                 for row in reader:
-                    total_fiat += float(row[0])
+                    total_btc += float(row[1])
+        
+        return round(total_btc,8) if total_btc !=0 else 0
+
+    def leer_log_compra(self, currency):
+        """Lee y retorna los valores totales de fiat y btc del log"""
+
+        total_btc = 0
+        if os.path.isfile(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv'):
+            with open(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', newline='') as f:
+                reader = csv.reader(f)
+                for row in reader:
                     total_btc += float(row[1])
         
         return round(total_btc,8) if total_btc !=0 else 0
@@ -286,15 +318,10 @@ class Vendedor:
             if mi_max >= datos['min_amount'] and mi_min <= datos['max_amount'] and datos['name'] != 'sromero':
                 puesto_a_superar = str(puesto)
                 break
-        
+
         precio_del_otro = info[f'{puesto_a_superar}']['price']
 
-        if self.vender_solo:
-            mi_nuevo_precio = self.adelantar(precio_del_otro, conn)
-        else:
-            mi_nuevo_precio = self.adelantar_beta(precio_del_otro, conn)
-
-        return mi_nuevo_precio
+        return precio_del_otro
 
     @loop
     def update_price(self):
@@ -311,12 +338,17 @@ class Vendedor:
 
             print(f'\nrunning...{currency[0:2]}\n')
             info = self.informacion_comerciantes(conn)
-            precio_de_inicio,_,_ = self.recorrer_puestos(info, conn)
+            precio_del_otro = self.recorrer_puestos(info, conn)
             
-            if precio_de_inicio < float(precio_limite_total):
+            if precio_del_otro < float(precio_limite_total):
 
                 self.precio_limite_alcanzado(conn, precio_limite_total)
                 continue
+
+            if self.vender_solo:
+                precio_de_inicio,_,_ = self.adelantar(precio_del_otro, conn)
+            else:
+                precio_de_inicio,_,_ = self.adelantar_beta(precio_del_otro, conn)
             
             delta_de_precio = 0
 
@@ -328,7 +360,11 @@ class Vendedor:
                 
                 if mi_precio > precio_limite_total:
 
-                    self.recorrer_puestos(info, conn)
+                    precio_del_otro = self.recorrer_puestos(info, conn)
+                    if self.vender_solo:
+                        self.adelantar(precio_del_otro, conn)
+                    else:
+                        self.adelantar_beta(precio_del_otro, conn)
 
                 else:
                     self.precio_limite_alcanzado(conn, precio_limite_total)
