@@ -139,10 +139,10 @@ class Vendedor:
         ad_id, currency = self.get_atributos("ad_id", "currency")
         
         nuevo_precio = round(precio_del_otro - precio_del_otro*0.00001)
-        print(f'El precio a mejorar es {precio_del_otro} {currency}')
+        sys.stdout.write(f'El precio a mejorar es {precio_del_otro} {currency}')
         response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
         mi_nuevo_precio = self.precio_actual(conn)
-        print(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'))
+        sys.stdout.write(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'))
 
         return mi_nuevo_precio
 
@@ -153,14 +153,14 @@ class Vendedor:
         ad_id, comision_local, currency,  minimo = self.get_atributos("ad_id", "comision_local","currency",  "minimo")
 
         nuevo_precio = round(precio_del_otro - precio_del_otro*0.00001)
-        print(f'El precio a mejorar es {precio_del_otro} {currency}')
+        sys.stdout.write(f'El precio a mejorar es {precio_del_otro} {currency}')
         total_btc = self.get_total_btc(conn)
         nuevo_maximo = total_btc * (1.0 - comision_local) * nuevo_precio
         prendida = self.is_active(conn)
         params  = self.informacion_del_anuncio(minimo, nuevo_maximo, nuevo_precio, prendida)
         response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
         mi_nuevo_precio = self.precio_actual(conn)
-        print(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'))
+        sys.stdout.write(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'))
 
         return mi_nuevo_precio
 
@@ -190,7 +190,7 @@ class Vendedor:
         else:
             self.adelantar_beta(precio_cuarto, conn)
 
-        print(self.con_color('\nresting...\n'))
+        sys.stdout.write(self.con_color('\nresting...\n'))
         time.sleep(420)
 
     def fijar(self,precio_limite, conn):
@@ -202,7 +202,7 @@ class Vendedor:
         nuevo_precio = precio_limite
         response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
         mi_nuevo_precio = self.precio_actual(conn)
-        print(response.json(), f'Precio fijado, Mi precio estabilizado por 15 min es {mi_nuevo_precio} {currency}')
+        sys.stdout.write(response.json(), f'Precio fijado, Mi precio estabilizado por 15 min es {mi_nuevo_precio} {currency}')
 
     def fijar_beta(self, precio_limite, conn):
 
@@ -218,7 +218,7 @@ class Vendedor:
         response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
         
         mi_nuevo_precio = self.precio_actual(conn)
-        print(response.json(), f'Precio fijado, Mi precio estabilizado por 15 min es {mi_nuevo_precio} {currency}')
+        sys.stdout.write(response.json(), f'Precio fijado, Mi precio estabilizado por 15 min es {mi_nuevo_precio} {currency}')
 
     def format_time(self,sec):
 
@@ -345,7 +345,7 @@ class Vendedor:
 
         currency,  = self.get_atributos("currency")
 
-        print(self.con_color(f'Precio limite total de {precio_limite_total} {currency} alcanzado'))
+        sys.stdout.write(self.con_color(f'Precio limite total de {precio_limite_total} {currency} alcanzado'))
         if self.vender_solo:
             self.fijar(precio_limite_total + 1, conn)
         else:
@@ -386,13 +386,13 @@ class Vendedor:
             precio_limite_total = self.get_precio_limite_total()
             
             if precio_limite_total is None:
-                print(f'No hay btc')
+                sys.stdout.write(f'No hay btc')
                 time.sleep(30)
                 continue
 
-            print(precio_limite_total)
+            sys.stdout.write(precio_limite_total)
 
-            print(f'\nrunning...{currency[0:2]}\n')
+            sys.stdout.write(f'\nrunning...{currency[0:2]}\n')
             info = self.informacion_comerciantes(conn)
             precio_del_otro = self.recorrer_puestos(info, conn)
             
@@ -410,7 +410,7 @@ class Vendedor:
 
             while delta_de_precio < precio_de_inicio*0.01:
                 start_time = time.time()
-                print('\nrunning...combat\n')
+                sys.stdout.write('\nrunning...combat\n')
                 mi_precio, _, _ = self.precio_actual(conn)
                 info = self.informacion_comerciantes(conn)
                 
@@ -430,7 +430,7 @@ class Vendedor:
                 delta_de_precio = precio_de_inicio - mi_nuevo_precio
                 end_time = time.time()
                 duracion = end_time - start_time    
-                print(self.format_time(duracion), f'El delta de precio es: {delta_de_precio}')
+                sys.stdout.write(self.format_time(duracion), f'El delta de precio es: {delta_de_precio}')
                 time.sleep(30)
 
             else:

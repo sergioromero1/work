@@ -26,10 +26,10 @@ class Comprador:
         ad_id, currency = self.get_atributos("ad_id", "currency")
         
         nuevo_precio = round(precio_del_otro + precio_del_otro*0.00001)
-        print(f'El precio a mejorar es {precio_del_otro} {currency}')
+        sys.stdout.write(f'El precio a mejorar es {precio_del_otro} {currency}')
         response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
         mi_nuevo_precio = self.precio_actual(conn)
-        print(response.json(), self.con_color(f'Precio adelantado, Mi nuevo precio es {mi_nuevo_precio} {currency}'))
+        sys.stdout.write(response.json(), self.con_color(f'Precio adelantado, Mi nuevo precio es {mi_nuevo_precio} {currency}'))
 
         return mi_nuevo_precio
 
@@ -118,7 +118,7 @@ class Comprador:
 
         while True:
 
-            print(f'\nrunning...{currency[0:2]}\n')
+            sys.stdout.write(f'\nrunning...{currency[0:2]}\n')
             info = self.informacion_comerciantes(conn)
             puesto_a_superar = self.recorrer_puestos(info)
             if posicion == 'primero':

@@ -50,11 +50,11 @@ class Notificador:
         
         if not enviado:
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})        
-            print(enviar_mensaje.json(), ' Mensaje Final de venta enviado')
+            sys.stdout.write(enviar_mensaje.json(), ' Mensaje Final de venta enviado')
             fiat = contact_info['amount']
             btc = float(contact_info['amount_btc']) + float(contact_info['fee_btc'])
             self.escribir_log(fiat, btc)
-            print(self.con_color(f'Se escribió en el log venta de {btc} por {fiat} {currency}'))
+            sys.stdout.write(self.con_color(f'Se escribió en el log venta de {btc} por {fiat} {currency}'))
 
     def atender_nuevo_comercio(self, notificacion, conn):
 
@@ -64,7 +64,7 @@ class Notificador:
         contact_id = notificacion['contact_id']
         notification_id = notificacion['id']
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-        print(marcar_como_leida.json(), ' Notif leida Nuevo comercio')
+        sys.stdout.write(marcar_como_leida.json(), ' Notif leida Nuevo comercio')
         
         if self.is_afternoon():
             saludo = 'Buenas tardes \n'
@@ -73,7 +73,7 @@ class Notificador:
 
         enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{saludo} {mensaje}'})
                     
-        print(enviar_mensaje.json(), ' Mensaje nuevo comercio enviado')
+        sys.stdout.write(enviar_mensaje.json(), ' Mensaje nuevo comercio enviado')
 
     def atender_marcado_como_pagado(self,notificacion, conn):
 
@@ -88,7 +88,7 @@ class Notificador:
         contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
         contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-        print(marcar_como_leida.json(), ' Notif leida marcado como pagado')
+        sys.stdout.write(marcar_como_leida.json(), ' Notif leida marcado como pagado')
 
         for message in contact_messages:
             if 'attachment_type' in message:
@@ -99,11 +99,11 @@ class Notificador:
 
         if attachment and not enviado:
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
-            print(enviar_mensaje.json(), ' Mensaje de venta completada enviado')
+            sys.stdout.write(enviar_mensaje.json(), ' Mensaje de venta completada enviado')
 
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'Revisa {amount} en la cuenta de {receptor}')
-            print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]} ')        )
+            sys.stdout.write(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]} ')        )
 
     def atender_nuevo_mensaje(self, notificacion, conn):
 
@@ -119,7 +119,7 @@ class Notificador:
         contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
         contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-        print(marcar_como_leida.json(), ' Notif leida nuevo mensaje o comprobante')
+        sys.stdout.write(marcar_como_leida.json(), ' Notif leida nuevo mensaje o comprobante')
 
         for message in contact_messages:
             if 'attachment_type' in message:
@@ -132,10 +132,10 @@ class Notificador:
                         
         if attachment and payed and not enviado:
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
-            print(enviar_mensaje.json(), ' Mensaje de venta completada enviado')
+            sys.stdout.write(enviar_mensaje.json(), ' Mensaje de venta completada enviado')
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'Revisa {amount} en la cuenta de {receptor}')
-            print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]}'))
+            sys.stdout.write(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]}'))
 
     def escribir_log(self, fiat, btc):
 
@@ -246,7 +246,7 @@ class Notificador:
         """Atiende las notificaciones"""
 
         id_ad, currency = self.get_atributos("id_ad", "currency")
-        print(self.con_color(f'Revisando notificaciones...{currency[0:2]}'))
+        sys.stdout.write(self.con_color(f'Revisando notificaciones...{currency[0:2]}'))
         start_time = time.time()
         conn = self.conectar()
         response = conn.call(method='GET', url='/api/notifications/')
@@ -291,7 +291,7 @@ class Notificador:
 
         end_time = time.time()
         duracion = end_time - start_time    
-        print(self.format_time(duracion))
+        sys.stdout.write(self.format_time(duracion))
 
     def sendtext(self, bot_message):
 
@@ -329,11 +329,11 @@ class NotificadorCompra(Notificador):
         
         if not enviado:
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})        
-            print(enviar_mensaje.json(), ' Mensaje Final de venta enviado')
+            sys.stdout.write(enviar_mensaje.json(), ' Mensaje Final de venta enviado')
             fiat = contact_info['amount']
             btc = float(contact_info['amount_btc']) - float(contact_info['fee_btc'])
             self.escribir_log(fiat, btc)
-            print(self.con_color(f'Se escribió en el log compra de {btc} por {fiat} {currency}'))
+            sys.stdout.write(self.con_color(f'Se escribió en el log compra de {btc} por {fiat} {currency}'))
 
     def atender_nuevo_comercio(self, notificacion, conn):
 
@@ -348,7 +348,7 @@ class NotificadorCompra(Notificador):
         contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
         contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-        print(marcar_como_leida.json(), ' Notif leida Nuevo comercio de compra')
+        sys.stdout.write(marcar_como_leida.json(), ' Notif leida Nuevo comercio de compra')
         
         if self.is_afternoon():
             saludo = 'Buenas tardes \n'
@@ -368,15 +368,15 @@ class NotificadorCompra(Notificador):
         if num_cuenta:
 
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje_cuenta_ident}'})
-            print(enviar_mensaje.json(), self.con_color(' Mensaje de cuenta identificada enviado'))
+            sys.stdout.write(enviar_mensaje.json(), self.con_color(' Mensaje de cuenta identificada enviado'))
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'ahoros {cuenta[0]}\n {amount}')
-            print(enviado_telegram, ' Mensaje de compra enviado a telegram ')
+            sys.stdout.write(enviado_telegram, ' Mensaje de compra enviado a telegram ')
 
         else:
 
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{saludo} {mensaje}'})
-            print(enviar_mensaje.json(), 'Compra Mensaje nuevo comercio enviado')
+            sys.stdout.write(enviar_mensaje.json(), 'Compra Mensaje nuevo comercio enviado')
 
     def atender_nuevo_mensaje(self, notificacion, conn):
 
@@ -391,7 +391,7 @@ class NotificadorCompra(Notificador):
         contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
         contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-        print(marcar_como_leida.json(), ' Notif leida nuevo mensaje o comprobante')
+        sys.stdout.write(marcar_como_leida.json(), ' Notif leida nuevo mensaje o comprobante')
         
         for message in contact_messages:
             if message['msg'][0:4] == mensaje[0:4]:
@@ -407,11 +407,11 @@ class NotificadorCompra(Notificador):
 
         if num_cuenta and not enviado:
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
-            print(enviar_mensaje.json(), ' Mensaje de cuenta identificada enviado')
+            sys.stdout.write(enviar_mensaje.json(), ' Mensaje de cuenta identificada enviado')
 
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'ahoros {cuenta[0]}\n {amount}')
-            print(enviado_telegram, self.con_color(' Mensaje de compra enviado a telegram '))
+            sys.stdout.write(enviado_telegram, self.con_color(' Mensaje de compra enviado a telegram '))
 
     def escribir_log(self, fiat, btc):
 
@@ -462,7 +462,7 @@ class NotificadorCompra(Notificador):
         """Atiende las notificaciones"""
 
         id_ad, currency = self.get_atributos("id_ad", "currency")
-        print(self.con_color(f'Revisando notificaciones...{currency[0:2]}'))
+        sys.stdout.write(self.con_color(f'Revisando notificaciones...{currency[0:2]}'))
         start_time = time.time()
         conn = self.conectar()
         response = conn.call(method='GET', url='/api/notifications/')
@@ -499,7 +499,7 @@ class NotificadorCompra(Notificador):
 
         end_time = time.time()
         duracion = end_time - start_time    
-        print(self.format_time(duracion))
+        sys.stdout.write(self.format_time(duracion))
 
     def sendtext(self, bot_message):
 
@@ -527,7 +527,7 @@ class NotificadorCompraCostaRica(NotificadorCompra):
         contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
         contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-        print(marcar_como_leida.json(), ' Notif leida Nuevo comercio de compra')
+        sys.stdout.write(marcar_como_leida.json(), ' Notif leida Nuevo comercio de compra')
         
         if self.is_afternoon():
             saludo = 'Buenas tardes \n'
@@ -556,15 +556,15 @@ class NotificadorCompraCostaRica(NotificadorCompra):
         if num_cuenta:
 
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje_cuenta_ident}'})
-            print(enviar_mensaje.json(), self.con_color(' Mensaje de cuenta identificada enviado'))
+            sys.stdout.write(enviar_mensaje.json(), self.con_color(' Mensaje de cuenta identificada enviado'))
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}')
-            print(enviado_telegram, ' Mensaje de compra enviado a telegram ')
+            sys.stdout.write(enviado_telegram, ' Mensaje de compra enviado a telegram ')
 
         else:
 
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{saludo} {mensaje}'})
-            print(enviar_mensaje.json(), 'Compra Mensaje nuevo comercio enviado')
+            sys.stdout.write(enviar_mensaje.json(), 'Compra Mensaje nuevo comercio enviado')
 
     def atender_nuevo_mensaje(self, notificacion, conn):
 
@@ -579,7 +579,7 @@ class NotificadorCompraCostaRica(NotificadorCompra):
         contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
         contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-        print(marcar_como_leida.json(), ' Notif leida nuevo mensaje o comprobante')
+        sys.stdout.write(marcar_como_leida.json(), ' Notif leida nuevo mensaje o comprobante')
 
         cuenta1 = ''
         cuenta2 = ''
@@ -604,11 +604,11 @@ class NotificadorCompraCostaRica(NotificadorCompra):
 
         if num_cuenta and not enviado:
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
-            print(enviar_mensaje.json(), ' Mensaje de cuenta identificada enviado')
+            sys.stdout.write(enviar_mensaje.json(), ' Mensaje de cuenta identificada enviado')
 
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}')
-            print(enviado_telegram, self.con_color(' Mensaje de compra enviado a telegram '))
+            sys.stdout.write(enviado_telegram, self.con_color(' Mensaje de compra enviado a telegram '))
 
 class NotificadorCompraTether(NotificadorCompra):
 
@@ -625,7 +625,7 @@ class NotificadorCompraTether(NotificadorCompra):
         contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
         contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-        print(marcar_como_leida.json(), ' Notif leida Nuevo comercio de compra')
+        sys.stdout.write(marcar_como_leida.json(), ' Notif leida Nuevo comercio de compra')
         
         if self.is_afternoon():
             saludo = 'Buenas tardes \n'
@@ -654,15 +654,15 @@ class NotificadorCompraTether(NotificadorCompra):
         if num_cuenta:
 
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje_cuenta_ident}'})
-            print(enviar_mensaje.json(), self.con_color(' Mensaje de cuenta identificada enviado'))
+            sys.stdout.write(enviar_mensaje.json(), self.con_color(' Mensaje de cuenta identificada enviado'))
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}')
-            print(enviado_telegram, ' Mensaje de compra enviado a telegram ')
+            sys.stdout.write(enviado_telegram, ' Mensaje de compra enviado a telegram ')
 
         else:
 
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{saludo} {mensaje}'})
-            print(enviar_mensaje.json(), 'Compra Mensaje nuevo comercio enviado')
+            sys.stdout.write(enviar_mensaje.json(), 'Compra Mensaje nuevo comercio enviado')
 
     def atender_nuevo_mensaje(self, notificacion, conn):
 
@@ -677,7 +677,7 @@ class NotificadorCompraTether(NotificadorCompra):
         contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
         contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-        print(marcar_como_leida.json(), ' Notif leida nuevo mensaje o comprobante')
+        sys.stdout.write(marcar_como_leida.json(), ' Notif leida nuevo mensaje o comprobante')
 
         cuenta1 = ''
         cuenta2 = ''
@@ -702,8 +702,8 @@ class NotificadorCompraTether(NotificadorCompra):
 
         if num_cuenta and not enviado:
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
-            print(enviar_mensaje.json(), ' Mensaje de cuenta identificada enviado')
+            sys.stdout.write(enviar_mensaje.json(), ' Mensaje de cuenta identificada enviado')
 
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}')
-            print(enviado_telegram, self.con_color(' Mensaje de compra enviado a telegram '))
+            sys.stdout.write(enviado_telegram, self.con_color(' Mensaje de compra enviado a telegram '))
