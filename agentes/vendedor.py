@@ -1,16 +1,20 @@
+from requests.api import get
 from .conectar import Connection
 from decoradores.loop import loop
 from utils.color import Color
+from bs4 import BeautifulSoup
 import csv
 import datetime
 import os
+import requests
+import sys
 import time
 
 class Vendedor:
 
-    def __init__(self, precio_limite_total, minimo, comision_local, currency, ad_id,key, secret, parametros,currency_compra, vender_solo):
+    def __init__(self, porcentaje_de_ganancia, minimo, comision_local, currency, ad_id,key, secret, parametros,currency_compra, vender_solo):
 
-        self.precio_limite_total = precio_limite_total
+        self.porcentaje_de_ganancia = porcentaje_de_ganancia
         self.minimo = minimo
         self.comision_local = comision_local
         self.currency = currency
@@ -53,22 +57,61 @@ class Vendedor:
 
 
         total_btc_compra = 0
+        total_fiat_compra = 0
+
         if os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv'):
             with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv', newline='') as f:
                 reader = csv.reader(f)
                 for row in reader:
                     total_btc_compra += float(row[1])
-        
+                       
         total_btc_venta = 0
+        total_fiat_venta = 0
         if os.path.isfile(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv'):
             with open(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv', newline='') as f:
                 reader = csv.reader(f)
                 for row in reader:
                     total_btc_venta += float(row[1])
+                    total_fiat_venta += float(row[0])        
 
         total_btc = total_btc_compra - total_btc_venta
+
+        precio_de_compra_dia_anterior = 0
+        if os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv'):
+            with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv', newline='') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    if float(row[1]) != 0:
+                        precio = float(row[0])/float(row[1])
+                        peso = float(row[1]) / total_btc_compra
+                        precio_de_compra_dia_anterior += precio * peso
+
+        total_fiat = total_btc * precio_de_compra_dia_anterior
         
-        return round(total_btc,8) if total_btc > 0.00007 else 0
+        return (round(total_fiat,2), round(total_btc,8)) if total_btc > 0.00007 else (0 , 0)
+
+    def get_precio_de_cambio(self, currency):
+
+        page = requests.get(f'https://www.x-rates.com/calculator/?from={currency}&to=COP&amount=1')
+        soup = BeautifulSoup(page.text, 'html.parser')
+
+        part1 = soup.find(class_="ccOutputTrail").previous_sibling
+        part2 = soup.find(class_="ccOutputTrail").get_text(strip=True)
+        rate = f"{part1}{part2}"
+
+    def get_precio_limite_total(self):
+
+        currency, currency_compra, porcentaje_de_ganancia = self.get_atributos("currency", "currency_compra", "porcentaje_de_ganancia")
+
+        if not os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv'):
+            fiat_saldo_dia_anterior , btc_saldo_dia_anterior = self.get_saldo_dia_anterior(currency)
+            with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([fiat_saldo_dia_anterior,btc_saldo_dia_anterior])
+
+        fiat_de_comprado, btc_comprados = self.leer_log_compra(currency_compra)
+
+        return round((float(fiat_de_comprado) / float(btc_comprados))*porcentaje_de_ganancia,2)  if fiat_de_comprado !=0 and btc_comprados !=0 else None
 
     def get_total_btc(self, conn):
 
@@ -76,13 +119,13 @@ class Vendedor:
         currency, currency_compra = self.get_atributos("currency", "currency_compra")
                 
         if not os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv'):
-            btc_saldo_dia_anterior = self.get_saldo_dia_anterior(currency)
+            fiat_saldo_dia_anterior , btc_saldo_dia_anterior = self.get_saldo_dia_anterior(currency)
             with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow([0,btc_saldo_dia_anterior])
+                writer.writerow([fiat_saldo_dia_anterior,btc_saldo_dia_anterior])
         
-        btc_comprados = self.leer_log_compra(currency_compra)
-        btc_vendidos = self.leer_log(currency)
+        _, btc_comprados = self.leer_log_compra(currency_compra)
+        _, btc_vendidos = self.leer_log(currency)
         btc_en_scrow = self.get_btc_en_scrow(conn, currency)
 
         total_btc = round(float(btc_comprados)-float(btc_vendidos)-float(btc_en_scrow),8)
@@ -258,25 +301,29 @@ class Vendedor:
         """Lee y retorna los valores totales de fiat y btc del log"""
 
         total_btc = 0
+        total_fiat = 0
         if os.path.isfile(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv'):
             with open(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', newline='') as f:
                 reader = csv.reader(f)
                 for row in reader:
                     total_btc += float(row[1])
-        
-        return round(total_btc,8) if total_btc !=0 else 0
+                    total_fiat += float(row[0])
+                   
+        return (round(total_fiat,2) , round(total_btc,8)) if total_btc !=0 else (0 , 0)
 
     def leer_log_compra(self, currency):
         """Lee y retorna los valores totales de fiat y btc del log"""
 
         total_btc = 0
+        total_fiat = 0
         if os.path.isfile(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv'):
             with open(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', newline='') as f:
                 reader = csv.reader(f)
                 for row in reader:
                     total_btc += float(row[1])
+                    total_fiat += float(row[0])
         
-        return round(total_btc,8) if total_btc !=0 else 0
+        return (round(total_fiat,2), round(total_btc,8)) if total_btc !=0 else (0,0)
 
     def precio_actual(self, conn):
 
@@ -304,7 +351,7 @@ class Vendedor:
         else:
             self.fijar_beta(precio_limite_total + 1, conn)
 
-        time.sleep(900)
+        time.sleep(350)
 
     def recorrer_puestos(self,info, conn):
         
@@ -331,10 +378,19 @@ class Vendedor:
             de mas de 300 MXN descansa por unos minutos.
         """
 
-        precio_limite_total, currency = self.get_atributos("precio_limite_total", "currency")
+        currency, = self.get_atributos("currency")
         conn = self.conectar()
 
         while True:
+
+            precio_limite_total = self.get_precio_limite_total()
+            
+            if precio_limite_total is None:
+                print(f'No hay btc')
+                time.sleep(30)
+                continue
+
+            print(precio_limite_total)
 
             print(f'\nrunning...{currency[0:2]}\n')
             info = self.informacion_comerciantes(conn)
@@ -375,7 +431,7 @@ class Vendedor:
                 end_time = time.time()
                 duracion = end_time - start_time    
                 print(self.format_time(duracion), f'El delta de precio es: {delta_de_precio}')
-                time.sleep(15)
+                time.sleep(30)
 
             else:
                 self.descansar(conn)

@@ -2,6 +2,8 @@ import time
 import datetime
 import hashlib
 import hmac as hmac_lib
+from bs4 import BeautifulSoup
+
 import requests
 import sys
 import re
@@ -137,6 +139,14 @@ def get_btc_en_scrow(currency):
 
     return info[f'{currency[0:2]}']
 
+def wb():
+    page = requests.get('https://www.x-rates.com/calculator/?from=MXN&to=COP&amount=1')
+    soup = BeautifulSoup(page.text, 'html.parser')
+
+    part1 = soup.find(class_="ccOutputTrail").previous_sibling
+    part2 = soup.find(class_="ccOutputTrail").get_text(strip=True)
+    rate = "{}{}".format(part1,part2)
+    print(rate)
 
 class Connection():
 
@@ -232,5 +242,6 @@ class Connection():
 
 if __name__ == "__main__":
 
-    entrada = get_btc_en_scrow('CRC')
-    print(entrada)
+    # entrada = get_btc_en_scrow('CRC')
+    # print(entrada)
+    wb()

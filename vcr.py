@@ -7,7 +7,7 @@ import sys
 
 if __name__ == "__main__":
 
-    precio_limite_total = float(sys.argv[1])
+    porcentaje_de_ganancia = 1.07
     minimo = 2000
     comision_local = 0.01
     currency = 'CRC'
@@ -30,11 +30,11 @@ if __name__ == "__main__":
         'track_max_amount': True,
         'require_trusted_by_advertiser': False,
         'require_identification': True,
-        'opening_hours': '[[36, 80], [36, 90], [36, 90], [34, 90], [36, 90], [36, 90], [36, 80]]'
+        'opening_hours': '[[38, 80], [35, 88], [35, 88], [35, 88], [35, 88], [35, 88], [36, 80]]'
     }
     currency_compra = 'CRC'
     vender_solo = False
-    vendedor = Vendedor(precio_limite_total, minimo, comision_local, currency, ad_id,key, secret, parametros,currency_compra, vender_solo)
+    vendedor = Vendedor(porcentaje_de_ganancia, minimo, comision_local, currency, ad_id,key, secret, parametros,currency_compra, vender_solo)
     vendedor.update_price()
 
     

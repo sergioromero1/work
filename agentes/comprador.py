@@ -2,6 +2,7 @@ from .conectar import Connection
 from utils.color import Color
 from decoradores.loop import loop
 import time
+import sys
 
 class Comprador:
 
