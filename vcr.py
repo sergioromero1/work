@@ -7,7 +7,7 @@ import sys
 
 if __name__ == "__main__":
 
-    porcentaje_de_ganancia = 1.07
+    porcentaje_de_ganancia = 1.08
     minimo = 2000
     comision_local = 0.01
     currency = 'CRC'

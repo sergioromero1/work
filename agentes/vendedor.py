@@ -51,41 +51,38 @@ class Vendedor:
 
         return info[f'{currency[0:2]}']
 
-    def get_saldo_dia_anterior(self,currency):
+    def get_saldo_dia_anterior(self):
         """Lee y retorna los valores totales de btc sin vender del dia anterior"""
         currency, currency_compra = self.get_atributos("currency", "currency_compra")
 
+        for td in range(1,31):
+            total_btc_compra = 0
+            if os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=td))}.csv'):
+                with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=td))}.csv', newline='') as f:
+                    reader = csv.reader(f)
+                    for row in reader:
+                        total_btc_compra += float(row[1])
+        
+            total_btc_venta = 0
+            if os.path.isfile(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=td))}.csv'):
+                with open(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=td))}.csv', newline='') as f:
+                    reader = csv.reader(f)
+                    for row in reader:
+                        total_btc_venta += float(row[1])
 
-        total_btc_compra = 0
-        total_fiat_compra = 0
-
-        if os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv'):
-            with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv', newline='') as f:
-                reader = csv.reader(f)
-                for row in reader:
-                    total_btc_compra += float(row[1])
-                       
-        total_btc_venta = 0
-        total_fiat_venta = 0
-        if os.path.isfile(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv'):
-            with open(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv', newline='') as f:
-                reader = csv.reader(f)
-                for row in reader:
-                    total_btc_venta += float(row[1])
-                    total_fiat_venta += float(row[0])        
+            precio_de_compra_dia_anterior = 0
+            if os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=td))}.csv'):
+                with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=td))}.csv', newline='') as f:
+                    reader = csv.reader(f)
+                    for row in reader:
+                        if float(row[1]) != 0:
+                            precio = float(row[0])/float(row[1])
+                            peso = float(row[1]) / total_btc_compra
+                            precio_de_compra_dia_anterior += precio * peso
+                
+                break
 
         total_btc = total_btc_compra - total_btc_venta
-
-        precio_de_compra_dia_anterior = 0
-        if os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv'):
-            with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=1))}.csv', newline='') as f:
-                reader = csv.reader(f)
-                for row in reader:
-                    if float(row[1]) != 0:
-                        precio = float(row[0])/float(row[1])
-                        peso = float(row[1]) / total_btc_compra
-                        precio_de_compra_dia_anterior += precio * peso
-
         total_fiat = total_btc * precio_de_compra_dia_anterior
         
         return (round(total_fiat,2), round(total_btc,8)) if total_btc > 0.00007 else (0 , 0)
@@ -104,7 +101,7 @@ class Vendedor:
         currency, currency_compra, porcentaje_de_ganancia = self.get_atributos("currency", "currency_compra", "porcentaje_de_ganancia")
 
         if not os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv'):
-            fiat_saldo_dia_anterior , btc_saldo_dia_anterior = self.get_saldo_dia_anterior(currency)
+            fiat_saldo_dia_anterior , btc_saldo_dia_anterior = self.get_saldo_dia_anterior()
             with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow([fiat_saldo_dia_anterior,btc_saldo_dia_anterior])
@@ -117,13 +114,7 @@ class Vendedor:
 
         """obtiene el total de btc para el currency"""
         currency, currency_compra = self.get_atributos("currency", "currency_compra")
-                
-        if not os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv'):
-            fiat_saldo_dia_anterior , btc_saldo_dia_anterior = self.get_saldo_dia_anterior(currency)
-            with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow([fiat_saldo_dia_anterior,btc_saldo_dia_anterior])
-        
+                        
         _, btc_comprados = self.leer_log_compra(currency_compra)
         _, btc_vendidos = self.leer_log(currency)
         btc_en_scrow = self.get_btc_en_scrow(conn, currency)
@@ -139,10 +130,10 @@ class Vendedor:
         ad_id, currency = self.get_atributos("ad_id", "currency")
         
         nuevo_precio = round(precio_del_otro - precio_del_otro*0.00001)
-        sys.stdout.write(f'El precio a mejorar es {precio_del_otro} {currency}')
+        print(f'El precio a mejorar es {precio_del_otro} {currency}', flush=True)
         response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
         mi_nuevo_precio = self.precio_actual(conn)
-        sys.stdout.write(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'))
+        print(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'), flush=True)
 
         return mi_nuevo_precio
 
@@ -153,14 +144,14 @@ class Vendedor:
         ad_id, comision_local, currency,  minimo = self.get_atributos("ad_id", "comision_local","currency",  "minimo")
 
         nuevo_precio = round(precio_del_otro - precio_del_otro*0.00001)
-        sys.stdout.write(f'El precio a mejorar es {precio_del_otro} {currency}')
+        print(f'El precio a mejorar es {precio_del_otro} {currency}', flush=True)
         total_btc = self.get_total_btc(conn)
         nuevo_maximo = total_btc * (1.0 - comision_local) * nuevo_precio
         prendida = self.is_active(conn)
         params  = self.informacion_del_anuncio(minimo, nuevo_maximo, nuevo_precio, prendida)
         response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
         mi_nuevo_precio = self.precio_actual(conn)
-        sys.stdout.write(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'))
+        print(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'), flush=True)
 
         return mi_nuevo_precio
 
@@ -190,7 +181,7 @@ class Vendedor:
         else:
             self.adelantar_beta(precio_cuarto, conn)
 
-        sys.stdout.write(self.con_color('\nresting...\n'))
+        print(self.con_color('\nresting...\n'), flush=True)
         time.sleep(420)
 
     def fijar(self,precio_limite, conn):
@@ -202,7 +193,7 @@ class Vendedor:
         nuevo_precio = precio_limite
         response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
         mi_nuevo_precio = self.precio_actual(conn)
-        sys.stdout.write(response.json(), f'Precio fijado, Mi precio estabilizado por 15 min es {mi_nuevo_precio} {currency}')
+        print(response.json(), f'Precio fijado, Mi precio estabilizado por 15 min es {mi_nuevo_precio} {currency}', flush=True)
 
     def fijar_beta(self, precio_limite, conn):
 
@@ -218,7 +209,7 @@ class Vendedor:
         response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
         
         mi_nuevo_precio = self.precio_actual(conn)
-        sys.stdout.write(response.json(), f'Precio fijado, Mi precio estabilizado por 15 min es {mi_nuevo_precio} {currency}')
+        print(response.json(), f'Precio fijado, Mi precio estabilizado por 15 min es {mi_nuevo_precio} {currency}', flush=True)
 
     def format_time(self,sec):
 
@@ -345,7 +336,7 @@ class Vendedor:
 
         currency,  = self.get_atributos("currency")
 
-        sys.stdout.write(self.con_color(f'Precio limite total de {precio_limite_total} {currency} alcanzado'))
+        print(self.con_color(f'Precio limite total de {precio_limite_total} {currency} alcanzado'), flush=True)
         if self.vender_solo:
             self.fijar(precio_limite_total + 1, conn)
         else:
@@ -386,13 +377,13 @@ class Vendedor:
             precio_limite_total = self.get_precio_limite_total()
             
             if precio_limite_total is None:
-                sys.stdout.write(f'No hay btc')
+                print(f'No hay btc', flush=True)
                 time.sleep(30)
                 continue
 
-            sys.stdout.write(precio_limite_total)
+            print(precio_limite_total, flush=True)
 
-            sys.stdout.write(f'\nrunning...{currency[0:2]}\n')
+            print(f'\nrunning...{currency[0:2]}\n', flush=True)
             info = self.informacion_comerciantes(conn)
             precio_del_otro = self.recorrer_puestos(info, conn)
             
@@ -410,7 +401,7 @@ class Vendedor:
 
             while delta_de_precio < precio_de_inicio*0.01:
                 start_time = time.time()
-                sys.stdout.write('\nrunning...combat\n')
+                print('\nrunning...combat\n', flush=True)
                 mi_precio, _, _ = self.precio_actual(conn)
                 info = self.informacion_comerciantes(conn)
                 
@@ -430,7 +421,7 @@ class Vendedor:
                 delta_de_precio = precio_de_inicio - mi_nuevo_precio
                 end_time = time.time()
                 duracion = end_time - start_time    
-                sys.stdout.write(self.format_time(duracion), f'El delta de precio es: {delta_de_precio}')
+                print(self.format_time(duracion), f'El delta de precio es: {delta_de_precio}', flush=True)
                 time.sleep(30)
 
             else:
