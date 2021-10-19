@@ -108,6 +108,12 @@ class Vendedor:
 
         fiat_de_comprado, btc_comprados = self.leer_log_compra(currency_compra)
 
+        vt_bool, fiat_despues_de_venta_total, btc_despues_de_venta_total = self.verificar_venta_total(currency,currency_compra)
+
+        if vt_bool:
+            fiat_de_comprado = fiat_despues_de_venta_total
+            btc_comprados = btc_despues_de_venta_total
+
         return round((float(fiat_de_comprado) / float(btc_comprados))*porcentaje_de_ganancia,2)  if fiat_de_comprado !=0 and btc_comprados !=0 else None
 
     def get_total_btc(self, conn):
@@ -315,6 +321,24 @@ class Vendedor:
                     total_fiat += float(row[0])
         
         return (round(total_fiat,2), round(total_btc,8)) if total_btc !=0 else (0,0)
+
+    def verificar_venta_total(self, currency,currency_compra):
+        """Lee y retorna los valores totales de fiat y btc del log"""
+
+        if os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv'):
+            with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv', newline='') as f:
+                reader = list(csv.reader(f))
+                btc_ultima_fila = reader[-1][1]
+                fiat_ultima_fila = reader[-1][0]
+
+        _, btc_comprados = self.leer_log_compra(currency_compra)
+        _, btc_vendidos = self.leer_log(currency)
+        diferencia_btc = (abs(btc_comprados - btc_vendidos) - float(btc_ultima_fila))
+
+        if  diferencia_btc < 0.000015:
+            return (True, round(float(fiat_ultima_fila),2), round(float(btc_ultima_fila),8)) 
+        else:
+            return (False, _, _)
 
     def precio_actual(self, conn):
 

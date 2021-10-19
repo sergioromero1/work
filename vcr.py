@@ -7,7 +7,7 @@ import sys
 
 if __name__ == "__main__":
 
-    porcentaje_de_ganancia = 1.08
+    porcentaje_de_ganancia = 1.06
     minimo = 2000
     comision_local = 0.01
     currency = 'CRC'
@@ -21,7 +21,7 @@ if __name__ == "__main__":
         'location_string': 'San José Province, San José, Costa Rica',
         'countrycode': 'CR',
         'account_info': 'Transferencia⭐o deposito⭐',
-        'bank_name': '⭐BAC⭐SINPE⭐TODOS LOS BANCOS⭐RAPIDO⚡️️️',
+        'bank_name': '⭐BAC⭐SINPE⭐TODOS LOS BANCOS⭐RAPIDO⚡️️️NO TERCEROS',
         'msg': 'Transferencia⭐o deposito⭐. Todos los bancos con Colón Costarricense (CRC)\n\n'\
                 'Si no es banco BAC , debes tener en cuenta la comisión correspondiente.\n\n'\
                 'En la referencia de pago debes poner compra de btc y tu usuario o marcar el recibo\n\n'\

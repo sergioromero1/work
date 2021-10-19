@@ -20,8 +20,8 @@ if __name__ == "__main__":
         'city': 'Mexico City',
         'location_string': 'Mexico City, CDMX, Mexico',
         'countrycode': 'MX',
-        'account_info': 'Transferencia⭐USTD⭐ Tether ⭐Trasnfer',
-        'bank_name': 'Transferencia⭐USTD⭐ Tether ⭐Trasnfer',
+        'account_info': 'Transferencia⭐USTD⭐ Tether ⭐Transfer',
+        'bank_name': 'Transferencia⭐USTD⭐ Tether ⭐Transfer',
         'msg': 'Transferencia⭐USTD⭐ Tether ⭐Trasnfer\n\n'\
             'recibimos en Binance smart Chain\n\n'\
             'we recieve through Binance smart Chain\n\n'\
