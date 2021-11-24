@@ -87,15 +87,6 @@ class Vendedor:
         
         return (round(total_fiat,2), round(total_btc,8)) if total_btc > 0.00007 else (0 , 0)
 
-    def get_precio_de_cambio(self, currency):
-
-        page = requests.get(f'https://www.x-rates.com/calculator/?from={currency}&to=COP&amount=1')
-        soup = BeautifulSoup(page.text, 'html.parser')
-
-        part1 = soup.find(class_="ccOutputTrail").previous_sibling
-        part2 = soup.find(class_="ccOutputTrail").get_text(strip=True)
-        rate = f"{part1}{part2}"
-
     def get_precio_limite_total(self):
 
         currency, currency_compra, porcentaje_de_ganancia = self.get_atributos("currency", "currency_compra", "porcentaje_de_ganancia")
@@ -108,13 +99,18 @@ class Vendedor:
 
         fiat_de_comprado, btc_comprados = self.leer_log_compra(currency_compra)
 
-        vt_bool, fiat_despues_de_venta_total, btc_despues_de_venta_total = self.verificar_venta_total(currency,currency_compra)
+        vt_bool, fiat_ultima_fila, btc_ultima_fila, hay_btc = self.verificar_venta_total(currency,currency_compra)
+        
+        p_l_t = None
 
-        if vt_bool:
-            fiat_de_comprado = fiat_despues_de_venta_total
-            btc_comprados = btc_despues_de_venta_total
+        if fiat_de_comprado !=0 and btc_comprados !=0:
+            p_l_t = round((float(fiat_de_comprado) / float(btc_comprados))*porcentaje_de_ganancia,2)
 
-        return round((float(fiat_de_comprado) / float(btc_comprados))*porcentaje_de_ganancia,2)  if fiat_de_comprado !=0 and btc_comprados !=0 else None
+            if vt_bool:
+                p_l_t = round((float(fiat_ultima_fila) / float(btc_ultima_fila))*porcentaje_de_ganancia,2)
+
+
+        return p_l_t if (fiat_de_comprado !=0 and btc_comprados !=0) or hay_btc else None
 
     def get_total_btc(self, conn):
 
@@ -262,6 +258,9 @@ class Vendedor:
             is_visible = False
             nuevo_maximo = minimo + 1
 
+        if int(nuevo_maximo) < 0:
+            is_visible = False
+
         params={
         'price_equation': f'{nuevo_precio}',
         'lat': parametros['lat'],
@@ -323,7 +322,8 @@ class Vendedor:
         return (round(total_fiat,2), round(total_btc,8)) if total_btc !=0 else (0,0)
 
     def verificar_venta_total(self, currency,currency_compra):
-        """Lee y retorna los valores totales de fiat y btc del log"""
+        """Verifica si ya se vendio todo lo del mismo dia para seguir vendiendo,
+        y usar el precio de la nueva compra siguiente en otra función"""
 
         if os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv'):
             with open(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv', newline='') as f:
@@ -334,11 +334,17 @@ class Vendedor:
         _, btc_comprados = self.leer_log_compra(currency_compra)
         _, btc_vendidos = self.leer_log(currency)
         diferencia_btc = (abs(btc_comprados - btc_vendidos) - float(btc_ultima_fila))
+        comp_vend = abs(btc_comprados - btc_vendidos)
+        if comp_vend < 0.00001:
+            hay_btc = False
+        else:
+            hay_btc = True
+
 
         if  diferencia_btc < 0.000015:
-            return (True, round(float(fiat_ultima_fila),2), round(float(btc_ultima_fila),8)) 
+            return (True, round(float(fiat_ultima_fila),2), round(float(btc_ultima_fila),8), hay_btc) 
         else:
-            return (False, _, _)
+            return (False, _, _, hay_btc)
 
     def precio_actual(self, conn):
 
@@ -371,7 +377,7 @@ class Vendedor:
     def recorrer_puestos(self,info, conn):
         
         """Recorre las posiciones para saber donde ubicarse y se ubica en la 
-            mejor oferta de precio
+            mejor oferta de precio. Si no encuentra puesto a superar se ubica en el cuarto
         """
 
         _, mi_min , mi_max = self.precio_actual(conn)

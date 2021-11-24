@@ -24,7 +24,7 @@ class Comprador:
         """Adelanta un precio(se pone por debajo)"""
 
         ad_id, currency = self.get_atributos("ad_id", "currency")
-        
+
         nuevo_precio = round(precio_del_otro + precio_del_otro*0.00001)
         print(f'El precio a mejorar es {precio_del_otro} {currency}', flush=True)
         response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
@@ -43,7 +43,7 @@ class Comprador:
         key, secret = self.get_atributos("key", "secret")
         conn = Connection()
         conn._set_hmac(server, key, secret)
-        
+
         return conn
 
     def format_time(self,sec):
@@ -57,11 +57,11 @@ class Comprador:
         return "Duración = {0}:{1}:{2}".format(int(hours),int(mins),round(sec,2))
 
     def informacion_comerciantes(self, conn):
-        
+
         """Retorna la informacion de los 6 primeros anuncios"""
 
         currency,  = self.get_atributos("currency")
-        
+
 
         response = conn.call(method='GET',url= f'/sell-bitcoins-online/{currency}/.json')
         ad = response.json()['data']['ad_list']
@@ -69,7 +69,7 @@ class Comprador:
         position = 0
 
         for inside_dict in info.values():
-            
+
             inside_dict['name'] = str(ad[position]['data']['profile']['username'])
             inside_dict['price'] = float(ad[position]['data']['temp_price'])
             inside_dict['min_amount'] = float(ad[position]['data']['min_amount']) if ad[position]['data']['min_amount'] is not None else 0
@@ -90,12 +90,12 @@ class Comprador:
         max_amount = float(ad['max_amount'])
 
         precio_actual = float(ad['temp_price'])
-        
+
         return precio_actual, min_amount, max_amount
-    
+
     def recorrer_puestos(self,info):
-        
-        """Recorre las posiciones para saber donde ubicarse y se ubica en la 
+
+        """Recorre las posiciones para saber donde ubicarse y se ubica en la
             mejor oferta de precio
         """
 

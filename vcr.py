@@ -22,9 +22,12 @@ if __name__ == "__main__":
         'countrycode': 'CR',
         'account_info': 'Transferencia⭐o deposito⭐',
         'bank_name': '⭐BAC⭐SINPE⭐TODOS LOS BANCOS⭐RAPIDO⚡️️️NO TERCEROS',
-        'msg': 'Transferencia⭐o deposito⭐. Todos los bancos con Colón Costarricense (CRC)\n\n'\
+        'msg':  'NO SE ADMITEN TRANSFERENCIAS DE TERCEROS\n'\
+                'El nombre del titular de la transferencia debe coincidir con el titular de la cuenta de localbitcoins para liberar los btc\n\n'\
+                'Al ofertar aceptas los terminos\n\n'\
+                'Transferencia⭐o deposito⭐. Todos los bancos con Colón Costarricense (CRC)\n\n'\
                 'Si no es banco BAC , debes tener en cuenta la comisión correspondiente.\n\n'\
-                'En la referencia de pago debes poner compra de btc y tu usuario o marcar el recibo\n\n'\
+                'En la referencia de pago debes poner pago de servicios no reembolsable\n\n'\
                 '@sromeroBTC1\n\nEnglish spoken',
         'sms_verification_required': True,
         'track_max_amount': True,

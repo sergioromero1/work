@@ -98,28 +98,38 @@ def respond_notification():
 
 def prueba_rapida():
     conn = conectar()
+    # response = conn.call(method='GET', url='/api/notifications/')
+    # notificaciones = response.json()['data']
+    # print(notificaciones)
+    # contact_id = '76032632'
+    # contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
+    # cm = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
+    cm = conn.call(method='GET', url=f'/api/dashboard/released/').json()
+    print(cm)
+
+
 
     # response = conn.call(method='GET',url= f'/buy-bitcoins-online/CRC/.json')
     # response = conn.call(method='GET',url= f'/bitcoincharts/CRC/orderbook.json')
     # response = conn.call(method='GET',url= f'/bitcoincharts/CRC/trades.json')
-    response = conn.call(method='GET',url= f'/api/fees/')
-    mensaje = 'Procedo'
-    contact_messages = conn.call(method='GET', url=f'/api/contact_messages/74660722/').json()['data']['message_list']
+    # response = conn.call(method='GET',url= f'/api/fees/')
+    # mensaje = 'Procedo'
+    # contact_messages = conn.call(method='GET', url=f'/api/contact_messages/74660722/').json()['data']['message_list']
 
-    for message in contact_messages:
-        if message['msg'][0:4] == mensaje[0:4]:
-            enviado = True
-        cuenta1 = re.search(r'\d{11}', message['msg'])
-        cuenta2 = re.search(r'\d{2,6}[-\s]+\d{2,6}[-\s]+\d{2,6}[-\s]?\d*', message['msg'])
-        if cuenta1:
-            num_cuenta = True
-            cuenta = cuenta1
-        if cuenta2:
-            num_cuenta = True
-            cuenta = cuenta2
+    # for message in contact_messages:
+    #     if message['msg'][0:4] == mensaje[0:4]:
+    #         enviado = True
+    #     cuenta1 = re.search(r'\d{11}', message['msg'])
+    #     cuenta2 = re.search(r'\d{2,6}[-\s]+\d{2,6}[-\s]+\d{2,6}[-\s]?\d*', message['msg'])
+    #     if cuenta1:
+    #         num_cuenta = True
+    #         cuenta = cuenta1
+    #     if cuenta2:
+    #         num_cuenta = True
+    #         cuenta = cuenta2
 
-    if num_cuenta:
-        print(f'hola {cuenta[0]}')
+    # if num_cuenta:
+    #     print(f'hola {cuenta[0]}')
 
 def get_btc_en_scrow(currency):
     
@@ -147,6 +157,7 @@ def wb():
     part2 = soup.find(class_="ccOutputTrail").get_text(strip=True)
     rate = "{}{}".format(part1,part2)
     print(rate)
+
 
 class Connection():
 
@@ -244,4 +255,4 @@ if __name__ == "__main__":
 
     # entrada = get_btc_en_scrow('CRC')
     # print(entrada)
-    wb()
+    prueba_rapida()
