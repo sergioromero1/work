@@ -16,7 +16,7 @@ if __name__ == "__main__":
                     'sergio': 'HSBC \n Sergio Romero Romero \n\n Para pago en oxxo \n 4830 3031 5122 5386  \n\n Para Transferencia SPEI \n '\
                         '021180040645026366',
 
-                    'edgar': 'HSBC \n Edgar Rivas Nolasco \n\n Para pago en oxxo \n 4830 3031 5121 4612  \n\n Para Transferencia SPEI \n '\
+                    'edgar': 'HSBC \n Edgar Rivas Nolasco \n\n Para pago en oxxo \n 4830 3033 5028 3038  \n\n Para Transferencia SPEI \n '\
                         '021180040645025781',
 
                     'edgar2': 'BANAMEX \n Edgar Rivas Nolasco \n\n Para pago en oxxo \n 5206 9496 4573 4293  \n\n Para Transferencia SPEI \n '\

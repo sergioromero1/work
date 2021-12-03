@@ -57,9 +57,10 @@ class Revisor:
                 writer = csv.writer(f)
                 writer.writerow([fiat2,btc,fiat])
 
-        with open(f'logs/{t}-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([fiat,btc])
+        else:
+            with open(f'logs/{t}-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([fiat,btc])
 
     def get_precio_de_cambio(self, currency):
 
@@ -90,7 +91,6 @@ class Revisor:
             self.escribir_log(tipo, currency, btc, fiat)
             self.sendtext('Se escribio en log despues de revision')
                     
-
     def get_atributos(self, *nombres: str):
         """Retorna los atributos solicitados como una tupla"""
 

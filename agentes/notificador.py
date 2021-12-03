@@ -307,10 +307,10 @@ class Notificador:
         if verificador != '-1001215642574':
             sergio_id = '333685986'
             send_text2 = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + sergio_id + '&parse_mode=Markdown&text=' + bot_message
+            response2 = requests.post(send_text2)
 
         response = requests.post(send_text)
-        response2 = requests.post(send_text2)
-
+        
         return response.json()['ok']
 
 class NotificadorCompra(Notificador):
@@ -574,7 +574,7 @@ class NotificadorVentaCostaRica(Notificador):
         mensaje = self.get_message_nuevo_comercio()
         contact_id = notificacion['contact_id']
         contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
-        if contact_info['buyer']['username'] in ['Djpb0102', 'camedina11', 'elissakmd', 'DanielRuiz11', 'Ricardo8830', 'EileenArguedasM', 'Ricardo8830', 'ailak', 'grios14', 'cris_sulbaran']:
+        if contact_info['buyer']['username'] in ['Djpb0102', 'camedina11', 'elissakmd', 'DanielRuiz11', 'Ricardo8830', 'EileenArguedasM', 'Ricardo8830', 'ailak', 'grios14', 'cris_sulbaran','nazuaje','ERNESTONE']:
             mensaje = self.get_despues_de_aceptado()
             
         notification_id = notificacion['id']
