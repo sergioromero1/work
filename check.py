@@ -3,7 +3,7 @@ from settings.settings import BOT_TOKEN, CR_KEY, CR_SECRET
 
 if __name__ == "__main__":
 
-    sleep_time = 900            
+    sleep_time = 50        
     verificador = '333685986' #sergio
     key = CR_KEY
     secret = CR_SECRET

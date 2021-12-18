@@ -1,13 +1,9 @@
-from requests.api import get
 from .conectar import Connection
 from decoradores.loop import loop
 from utils.color import Color
-from bs4 import BeautifulSoup
 import csv
 import datetime
 import os
-import requests
-import sys
 import time
 
 class Vendedor:
@@ -87,9 +83,9 @@ class Vendedor:
         
         return (round(total_fiat,2), round(total_btc,8)) if total_btc > 0.00007 else (0 , 0)
 
-    def get_precio_limite_total(self):
+    def escribir_saldo_dia_anterior(self):
 
-        currency, currency_compra, porcentaje_de_ganancia = self.get_atributos("currency", "currency_compra", "porcentaje_de_ganancia")
+        currency_compra, = self.get_atributos("currency_compra")
 
         if not os.path.isfile(f'logs/C-{currency_compra[0:2]}-{str(datetime.datetime.now().date())}.csv'):
             fiat_saldo_dia_anterior , btc_saldo_dia_anterior = self.get_saldo_dia_anterior()
@@ -97,20 +93,24 @@ class Vendedor:
                 writer = csv.writer(f)
                 writer.writerow([fiat_saldo_dia_anterior,btc_saldo_dia_anterior])
 
-        fiat_de_comprado, btc_comprados = self.leer_log_compra(currency_compra)
+    def get_precio_limite_total(self):
 
-        vt_bool, fiat_ultima_fila, btc_ultima_fila, hay_btc = self.verificar_venta_total(currency,currency_compra)
+        currency, currency_compra, porcentaje_de_ganancia = self.get_atributos("currency", "currency_compra", "porcentaje_de_ganancia")
+
+        fiat_correspondiente_comprado, btc_comprados = self.leer_log_compra(currency_compra)
+
+        venta_total_bool, fiat_ultima_fila, btc_ultima_fila, hay_btc = self.verificar_venta_total(currency,currency_compra)
         
-        p_l_t = None
+        precio_limite_total = None
 
-        if fiat_de_comprado !=0 and btc_comprados !=0:
-            p_l_t = round((float(fiat_de_comprado) / float(btc_comprados))*porcentaje_de_ganancia,2)
+        if fiat_correspondiente_comprado !=0 and btc_comprados !=0:
+            precio_limite_total = round((float(fiat_correspondiente_comprado) / float(btc_comprados))*porcentaje_de_ganancia,2)
 
-            if vt_bool:
-                p_l_t = round((float(fiat_ultima_fila) / float(btc_ultima_fila))*porcentaje_de_ganancia,2)
+            if venta_total_bool:
+                precio_limite_total = round((float(fiat_ultima_fila) / float(btc_ultima_fila))*porcentaje_de_ganancia,2)
 
 
-        return p_l_t if (fiat_de_comprado !=0 and btc_comprados !=0) or hay_btc else None
+        return precio_limite_total if (fiat_correspondiente_comprado !=0 and btc_comprados !=0) or hay_btc else None
 
     def get_total_btc(self, conn):
 
@@ -234,8 +234,11 @@ class Vendedor:
         ad = response.json()['data']['ad_list']
         # info = {'primero':{}, 'segundo':{}, 'tercero':{}, 'cuarto':{}, 'quinto':{}, 'sexto':{}, 'septimo':{}, 'octavo':{}, 'noveno':{}}
         info = {'primero':{}, 'segundo':{}, 'tercero':{}, 'cuarto':{}, 'quinto':{}}
+        # info = {'primero':{}, 'segundo':{}, 'tercero':{}}
         position = 0
-
+        if len(ad) < 5:
+            info = {'primero':{}, 'segundo':{}}
+        
         for inside_dict in info.values():
             
             inside_dict['name'] = str(ad[position]['data']['profile']['username'])
@@ -381,7 +384,7 @@ class Vendedor:
         """
 
         _, mi_min , mi_max = self.precio_actual(conn)
-        puesto_a_superar = 'cuarto'
+        puesto_a_superar = 'segundo'
         for puesto,datos in info.items():
             if mi_max >= datos['min_amount'] and mi_min <= datos['max_amount'] and datos['name'] != 'sromero':
                 puesto_a_superar = str(puesto)
@@ -403,6 +406,8 @@ class Vendedor:
         conn = self.conectar()
 
         while True:
+
+            self.escribir_saldo_dia_anterior()
 
             precio_limite_total = self.get_precio_limite_total()
             

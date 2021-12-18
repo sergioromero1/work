@@ -89,7 +89,7 @@ class Revisor:
 
         if not encontrado:
             self.escribir_log(tipo, currency, btc, fiat)
-            self.sendtext('Se escribio en log despues de revision')
+            self.sendtext(f'Se escribio en log despues de revision {tipo}, {currency}, {btc}, {fiat}')
                     
     def get_atributos(self, *nombres: str):
         """Retorna los atributos solicitados como una tupla"""
@@ -118,7 +118,8 @@ class Revisor:
 
         sleep_time = int(self.sleep_time)
         while True:
-            print(self.con_color(f'realizando revisión'), flush=True)
+            start_time = time.time()
+            print(self.con_color(f'realizando revisión 1'), flush=True)
             comercios = self.encontrar_comercios()
 
             for comercio in comercios:
@@ -128,8 +129,10 @@ class Revisor:
                 fiat = comercio['fiat']
                 self.leer_log(tipo, currency, btc, fiat)
 
+            end_time = time.time()
+            duracion = end_time - start_time    
+            print(duracion, flush=True)
             time.sleep(sleep_time)
-
 
     def sendtext(self, bot_message):
 

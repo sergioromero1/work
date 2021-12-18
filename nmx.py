@@ -5,7 +5,7 @@ import sys
 if __name__ == "__main__":
     currency = 'MXN'
     id_ad = '1261529'
-    sleep_time = 20
+    sleep_time = 30
     receptor = sys.argv[1]
     receptores = {'cristina': 'BANAMEX \n Cristina Nolasco \n\n Para pago en oxxo \n 5206 9496 3512 8290  \n\n Para Transferencia SPEI \n '\
                         '002180701431343757',
@@ -26,10 +26,11 @@ if __name__ == "__main__":
                         '002180700913724772'
                     }
     verificador = '-1001215642574' #btc_group
+    administrador = '333685986' #sergio
     key = MX_KEY
     secret = MX_SECRET
     bot_token = BOT_TOKEN
-    notificador = Notificador(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador) 
+    notificador = Notificador(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador) 
     notificador.iniciar()
 
 

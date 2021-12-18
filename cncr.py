@@ -9,8 +9,9 @@ if __name__ == "__main__":
     receptor = ''
     receptores = {}
     verificador = '1526093626' #kozel
+    administrador = '333685986' #sergio
     key = COMPRA_KEY
     secret = COMPRA_SECRET
     bot_token = BOT_TOKEN
-    notificador = NotificadorCompraCostaRica(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, currency_venta) 
+    notificador = NotificadorCompraCostaRica(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador,currency_venta) 
     notificador.iniciar()

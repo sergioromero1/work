@@ -18,10 +18,11 @@ if __name__ == "__main__":
                             # '\n\n Trc 20 \n TQcRXoJh77ei1QD6Qitmgy5hU5SiwS3kJy'\
                                 }
     verificador = '333685986' #sergio
+    administrador = '333685986' #sergio
     key = MX_KEY
     secret = MX_SECRET
     bot_token = BOT_TOKEN
-    notificador = Notificador(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador) 
+    notificador = Notificador(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador,administrador) 
     notificador.iniciar()
 
 
