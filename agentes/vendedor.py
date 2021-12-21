@@ -229,24 +229,26 @@ class Vendedor:
 
         currency,  = self.get_atributos("currency")
         
-
         response = conn.call(method='GET',url= f'/buy-bitcoins-online/{currency}/.json')
         ad = response.json()['data']['ad_list']
-        # info = {'primero':{}, 'segundo':{}, 'tercero':{}, 'cuarto':{}, 'quinto':{}, 'sexto':{}, 'septimo':{}, 'octavo':{}, 'noveno':{}}
-        info = {'primero':{}, 'segundo':{}, 'tercero':{}, 'cuarto':{}, 'quinto':{}}
-        # info = {'primero':{}, 'segundo':{}, 'tercero':{}}
-        position = 0
-        if len(ad) < 5:
-            info = {'primero':{}, 'segundo':{}}
-        
-        for inside_dict in info.values():
+        info = {}
+        if len(ad) > 0:
+            posiciones = ['primero','segundo','tercero','cuarto','quinto','sexto','septimo','octavo','noveno']
             
-            inside_dict['name'] = str(ad[position]['data']['profile']['username'])
-            inside_dict['price'] = float(ad[position]['data']['temp_price'])
-            inside_dict['min_amount'] = float(ad[position]['data']['min_amount']) if ad[position]['data']['min_amount'] is not None else 0
-            inside_dict['max_amount'] = float(ad[position]['data']['max_amount_available'])
+            for item in range(len(ad)):
+                info[posiciones[item]] = {}
+                if item == 8:
+                    break
 
-            position += 1
+            position = 0
+            for inside_dict in info.values():
+                
+                inside_dict['name'] = str(ad[position]['data']['profile']['username'])
+                inside_dict['price'] = float(ad[position]['data']['temp_price'])
+                inside_dict['min_amount'] = float(ad[position]['data']['min_amount']) if ad[position]['data']['min_amount'] is not None else 0
+                inside_dict['max_amount'] = float(ad[position]['data']['max_amount_available'])
+
+                position += 1
 
         return info
 
@@ -419,9 +421,15 @@ class Vendedor:
             print(precio_limite_total, flush=True)
 
             print(f'\nrunning...{currency[0:2]}\n', flush=True)
+
             info = self.informacion_comerciantes(conn)
-            precio_del_otro = self.recorrer_puestos(info, conn)
             
+            if len(info) > 0:
+                precio_del_otro = self.recorrer_puestos(info, conn)
+            else:
+                self.precio_limite_alcanzado(conn, precio_limite_total)
+                continue
+
             if precio_del_otro < float(precio_limite_total):
 
                 self.precio_limite_alcanzado(conn, precio_limite_total)
