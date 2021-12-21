@@ -5,7 +5,7 @@ if __name__ == "__main__":
     currency = 'CRC'
     currency_venta = 'CRC'
     id_ad = '1397853'
-    sleep_time = 20
+    sleep_time = 40
     receptor = ''
     receptores = {}
     verificador = '1526093626' #kozel

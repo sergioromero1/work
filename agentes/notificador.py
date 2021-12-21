@@ -79,7 +79,7 @@ class Notificador:
     def atender_marcado_como_pagado(self,notificacion, conn):
 
         """Atiende la notificacion de marcado como pagado"""
-        currency, receptor,verificador = self.get_atributos('currency', 'receptor','verificador')
+        administrador, currency, receptor,verificador = self.get_atributos('administrador','currency', 'receptor','verificador')
         mensaje = self.get_message_venta_completada()
 
         attachment = False
@@ -105,6 +105,8 @@ class Notificador:
 
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(verificador,f'Revisa {amount} en la cuenta de {receptor}\n{nombre_de_local}')
+            if currency == 'CRC':
+                self.sendtext(administrador,f'Revisa {amount} en la cuenta de {receptor}\n{nombre_de_local}')
             print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]} '), flush=True)
 
     def atender_nuevo_mensaje(self, notificacion, conn):
@@ -146,16 +148,11 @@ class Notificador:
 
         currency, bot_token = self.get_atributos("currency", "bot_token")
 
-        sergio_id = '333685986'
-
         t='V'
  
         with open(f'logs/{t}-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
             writer = csv.writer(f)
             writer.writerow([fiat,btc])
-            bot_message = f'Se escribio en log de ventaq despues de revision {currency}, {btc}, {fiat}'
-            send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + sergio_id + '&parse_mode=Markdown&text=' + bot_message
-            response = requests.post(send_text)
         
     def con_color(self, string):
         return Color.BLUE + string + Color.END
@@ -258,7 +255,7 @@ class Notificador:
 
         if not encontrado:
             self.escribir_log(btc, fiat)
-            self.sendtext(administrador,f'Se escribio en log de venta despues de revision {currency}, {btc}, {fiat}')
+            self.sendtext(administrador,f'Se escribio en log de venta {currency}, {btc}, {fiat}')
 
     def notification_time(self, notificacion):
         
@@ -607,7 +604,7 @@ class NotificadorVentaCostaRica(Notificador):
         mensaje = self.get_message_nuevo_comercio()
         contact_id = notificacion['contact_id']
         contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
-        if contact_info['buyer']['username'] in ['Djpb0102', 'camedina11', 'elissakmd', 'DanielRuiz11', 'Ricardo8830', 'EileenArguedasM', 'Ricardo8830', 'ailak', 'grios14', 'cris_sulbaran','nazuaje','ERNESTONE']:
+        if contact_info['buyer']['username'] in ['Djpb0102', 'camedina11', 'elissakmd', 'DanielRuiz11', 'Ricardo8830', 'EileenArguedasM', 'Ricardo8830', 'ailak', 'grios14', 'cris_sulbaran','nazuaje','ERNESTONE','jevale310879']:
             mensaje = self.get_despues_de_aceptado()
             
         notification_id = notificacion['id']
@@ -780,7 +777,7 @@ class NotificadorCompraCostaRica(NotificadorCompra):
                 enviado = True
             sinpe = re.search(r'\D\D\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d\s\D', message['msg'])
             iban = re.search(r'CR([-\s]?\d{4}){5}', message['msg'])
-            bac = re.search(r'(\d[-\s]?){9}', message['msg'])
+            bac = re.search(r'\D\D\d[-\s]?\d[-\s]?d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d[-\s]?\d\s\D', message['msg'])
 
             if sinpe:
                 num_cuenta = True
