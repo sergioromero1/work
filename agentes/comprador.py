@@ -61,20 +61,26 @@ class Comprador:
 
         currency,  = self.get_atributos("currency")
 
-
         response = conn.call(method='GET',url= f'/sell-bitcoins-online/{currency}/.json')
         ad = response.json()['data']['ad_list']
-        info = {'primero':{}, 'segundo':{}, 'tercero':{}, 'cuarto':{}, 'quinto':{}, 'sexto':{}}
-        position = 0
+        info = {}
+        if len(ad) > 0:
+            posiciones = ['primero','segundo','tercero','cuarto','quinto','sexto']
+            
+            for item in range(len(ad)):
+                info[posiciones[item]] = {}
+                if item == 6:
+                    break
 
-        for inside_dict in info.values():
+            position = 0
+            for inside_dict in info.values():
 
-            inside_dict['name'] = str(ad[position]['data']['profile']['username'])
-            inside_dict['price'] = float(ad[position]['data']['temp_price'])
-            inside_dict['min_amount'] = float(ad[position]['data']['min_amount']) if ad[position]['data']['min_amount'] is not None else 0
-            inside_dict['max_amount'] = float(ad[position]['data']['max_amount_available'])
+                inside_dict['name'] = str(ad[position]['data']['profile']['username'])
+                inside_dict['price'] = float(ad[position]['data']['temp_price'])
+                inside_dict['min_amount'] = float(ad[position]['data']['min_amount']) if ad[position]['data']['min_amount'] is not None else 0
+                inside_dict['max_amount'] = float(ad[position]['data']['max_amount_available'])
 
-            position += 1
+                position += 1
 
         return info
 
@@ -119,9 +125,12 @@ class Comprador:
 
             print(f'\nrunning...{currency[0:2]}\n', flush=True)
             info = self.informacion_comerciantes(conn)
-            puesto_a_superar = self.recorrer_puestos(info)
-            if posicion == 'primero':
-                self.adelantar(info[f'{puesto_a_superar}']['price'],conn)
+            if len(info) > 0:
+                puesto_a_superar = self.recorrer_puestos(info)
+                if posicion == 'primero':
+                    self.adelantar(info[f'{puesto_a_superar}']['price'],conn)
+                else:
+                    self.adelantar(info[f'{posicion}']['price'],conn)
             else:
-                self.adelantar(info[f'{posicion}']['price'],conn)
+                time.sleep(3600)
             time.sleep(120)
