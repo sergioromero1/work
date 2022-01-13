@@ -103,9 +103,9 @@ class Notificador:
             print(enviar_mensaje.json(), ' Mensaje de venta completada enviado', flush=True)
 
             amount = contact_info['amount'] + ' ' + contact_info['currency']
-            enviado_telegram = self.sendtext(verificador,f' es una prueba Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
+            enviado_telegram = self.sendtext(verificador,f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
             if currency == 'CRC':
-                self.sendtext(administrador,f'es una prueba Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
+                self.sendtext(administrador,f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
             print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]} '), flush=True)
 
     def atender_nuevo_mensaje(self, notificacion, conn):
