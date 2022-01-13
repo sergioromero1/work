@@ -69,7 +69,7 @@ class Comprador:
             
             for item in range(len(ad)):
                 info[posiciones[item]] = {}
-                if item == 6:
+                if item == 5:
                     break
 
             position = 0

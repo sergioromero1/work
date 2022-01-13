@@ -6,7 +6,7 @@ if __name__ == "__main__":
     currency = 'MXN'
     id_ad = '1261529'
     sleep_time = 30
-    receptor = sys.argv[1]
+    receptor = 'edgarHSBC' #sys.argv[1]
     receptores = {'cristina': 'BANAMEX \n Cristina Nolasco \n\n Para pago en oxxo \n 5206 9496 3512 8290  \n\n Para Transferencia SPEI \n '\
                         '002180701431343757',
 
@@ -19,7 +19,7 @@ if __name__ == "__main__":
                     'edgarHSBC': 'HSBC \n Edgar Rivas Nolasco \n\n Para pago en oxxo \n 4830 3033 5028 3038  \n\n Para Transferencia SPEI \n '\
                         '021180040645025781',
 
-                    'edgarBANAMEX': 'BANAMEX \n Edgar Rivas Nolasco \n\n Para pago en oxxo \n 5206 9496 4573 4293  \n\n Para Transferencia SPEI \n '\
+                    'edgar_BANAMEX': 'BANAMEX \n Edgar Rivas Nolasco \n\n Para pago en oxxo \n 5206 9496 4573 4293  \n\n Para Transferencia SPEI \n '\
                         '002818701476622446',
 
                     'perfiles': 'BANAMEX \n Cristina Nolasco \n\n Para pago en oxxo \n 5204 1651 7729 2392  \n\n Para Transferencia SPEI \n '\
@@ -30,8 +30,18 @@ if __name__ == "__main__":
     key = MX_KEY
     secret = MX_SECRET
     bot_token = BOT_TOKEN
-    notificador = Notificador(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador) 
-    notificador.iniciar()
+    notificador = Notificador(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador)
+
+    notification = {
+        'read': True,
+        'created_at': '2020-09-17T13:59:47+00:00', 
+        'msg': 'Contact #65442550 nuevo mensaje de Oladimejiabeeb (100+; 100%)', 
+        'url': '/request/online_sell_seller/65442550', 
+        'id': '888d3fb67783', 
+        'contact_id': 65442550
+        }
+    conn = notificador.conectar()
+    notificador.atender_marcado_como_pagado(notification, conn)
 
 
 

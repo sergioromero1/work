@@ -25,7 +25,6 @@ class Notificador:
         self.receptores = receptores
         self.verificador = verificador
 
-
     def get_atributos(self, *nombres: str):
         """Retorna los atributos solicitados como una tupla"""
 
@@ -104,15 +103,15 @@ class Notificador:
             print(enviar_mensaje.json(), ' Mensaje de venta completada enviado', flush=True)
 
             amount = contact_info['amount'] + ' ' + contact_info['currency']
-            enviado_telegram = self.sendtext(verificador,f'Revisa {amount} en la cuenta de {receptor}\n{nombre_de_local}')
+            enviado_telegram = self.sendtext(verificador,f' es una prueba Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
             if currency == 'CRC':
-                self.sendtext(administrador,f'Revisa {amount} en la cuenta de {receptor}\n{nombre_de_local}')
+                self.sendtext(administrador,f'es una prueba Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
             print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]} '), flush=True)
 
     def atender_nuevo_mensaje(self, notificacion, conn):
 
         """Atiende un mensaje nuevo"""
-        currency,receptor,verificador = self.get_atributos('currency', 'receptor','verificador')
+        administrador, currency,receptor,verificador = self.get_atributos('administrador','currency', 'receptor','verificador')
         mensaje = self.get_message_venta_completada()
 
         attachment = False
@@ -139,7 +138,9 @@ class Notificador:
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
             print(enviar_mensaje.json(), ' Mensaje de venta completada enviado', flush=True)
             amount = contact_info['amount'] + ' ' + contact_info['currency']
-            enviado_telegram = self.sendtext(verificador,f'Revisa {amount} en la cuenta de {receptor}\n{nombre_de_local}')
+            enviado_telegram = self.sendtext(verificador, f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
+            if currency == 'CRC':
+                self.sendtext(administrador, f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
             print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]}'), flush=True)
 
     def escribir_log(self, btc, fiat):
@@ -687,8 +688,8 @@ class NotificadorVentaCostaRica(Notificador):
             enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
             print(enviar_mensaje.json(), ' Mensaje de venta completada enviado', flush=True)
             amount = contact_info['amount'] + ' ' + contact_info['currency']
-            enviado_telegram = self.sendtext(verificador, f'Revisa {amount} en la cuenta de {receptor}\n{nombre_de_local}')
-            self.sendtext(administrador, f'Revisa {amount} en la cuenta de {receptor}\n{nombre_de_local}')
+            enviado_telegram = self.sendtext(verificador, f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
+            self.sendtext(administrador, f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
             print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]}'), flush=True)
 
 class NotificadorCompraCostaRica(NotificadorCompra):
