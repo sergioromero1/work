@@ -13,7 +13,8 @@ if __name__ == "__main__":
     key = COMPRA_KEY
     secret = COMPRA_SECRET
     bot_token = BOT_TOKEN
-    notificador = NotificadorCompra(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador, currency_venta) 
+    enviar_mensaje = True
+    notificador = NotificadorCompra(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador, enviar_mensaje, currency_venta) 
     notificador.iniciar()
         
     

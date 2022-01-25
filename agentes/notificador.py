@@ -12,11 +12,12 @@ import time
 
 class Notificador:
 
-    def __init__(self, bot_token,currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador,administrador):
+    def __init__(self, bot_token,currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador,administrador, enviar_mensaje):
 
         self.administrador = administrador
         self.bot_token = bot_token
         self.currency = currency
+        self.enviar_mensaje = enviar_mensaje
         self.id_ad = id_ad
         self.key = key
         self.secret = secret
@@ -322,18 +323,21 @@ class Notificador:
 
     def sendtext(self, receptor, bot_message):
 
-        bot_token, = self.get_atributos("bot_token")
+        bot_token, enviar_mensaje = self.get_atributos("bot_token", "enviar_mensaje")
+        if enviar_mensaje:
+            send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + receptor + '&parse_mode=Markdown&text=' + bot_message
+            response = requests.post(send_text)
+            
+            return response.json()['ok']
 
-        send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + receptor + '&parse_mode=Markdown&text=' + bot_message
-        response = requests.post(send_text)
-        
-        return response.json()['ok']
+        else:
+            return 'Envio de mensajes desactivado'
 
 class NotificadorCompra(Notificador):
 
     """Para mexico estamos comprand en colombia entonces para 'MXN se hace una conversion en el log"""
-    def __init__(self, bot_token, currency, id_ad, key, secret, sleep_time, receptor, receptores, verificador, administrador, currency_venta):
-        super().__init__(bot_token, currency, id_ad, key, secret, sleep_time, receptor, receptores, verificador,administrador)
+    def __init__(self, bot_token, currency, id_ad, key, secret, sleep_time, receptor, receptores, verificador, administrador, enviar_mensaje, currency_venta):
+        super().__init__(bot_token, currency, id_ad, key, secret, sleep_time, receptor, receptores, verificador,administrador, enviar_mensaje)
         self.currency_venta = currency_venta
 
     def atender_final_compra(self, notificacion, conn):

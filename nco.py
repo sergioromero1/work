@@ -11,12 +11,13 @@ if __name__ == "__main__":
                     'sergio': 'Bancolombia \n Sergio Romero Romero \n\n No cuenta ahorros \n 820-481762-98 '
 
                     }
-    verificador = '-1001215642574' #btc_group
+    verificador = '333685986' #btc_group
     administrador = '333685986' #sergio
     key = MX_KEY
     secret = MX_SECRET
     bot_token = BOT_TOKEN
-    notificador = Notificador(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador,administrador) 
+    enviar_mensaje = True
+    notificador = Notificador(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador,administrador,enviar_mensaje )
     notificador.iniciar()
 
 

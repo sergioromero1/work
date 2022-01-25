@@ -38,7 +38,8 @@ if __name__ == "__main__":
     key = CR_KEY
     secret = CR_SECRET
     bot_token = BOT_TOKEN
-    notificador = NotificadorVentaCostaRica(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador) 
+    enviar_mensaje = True
+    notificador = NotificadorVentaCostaRica(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador,enviar_mensaje) 
     notificador.iniciar()
 
 
