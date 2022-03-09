@@ -25,7 +25,7 @@ if __name__ == "__main__":
                     'perfiles': 'BANAMEX \n Cristina Nolasco \n\n Para pago en oxxo \n 5204 1651 7729 2392  \n\n Para Transferencia SPEI \n '\
                         '002180700913724772'
                     }
-    verificador = '-1001215642574' #btc_group
+    verificador = '333685986' #'-1001215642574' #btc_group
     administrador = '333685986' #sergio
     key = MX_KEY
     secret = MX_SECRET

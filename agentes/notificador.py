@@ -609,7 +609,7 @@ class NotificadorVentaCostaRica(Notificador):
         mensaje = self.get_message_nuevo_comercio()
         contact_id = notificacion['contact_id']
         contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
-        if contact_info['buyer']['username'] in ['Djpb0102', 'camedina11', 'elissakmd', 'DanielRuiz11', 'Ricardo8830', 'EileenArguedasM', 'Ricardo8830', 'ailak', 'grios14', 'cris_sulbaran','nazuaje','ERNESTONE','jevale310879']:
+        if contact_info['buyer']['username'] in ['josedmarin','Djpb0102', 'camedina11', 'elissakmd', 'Ricardo8830', 'EileenArguedasM', 'Ricardo8830', 'ailak', 'grios14', 'cris_sulbaran','nazuaje','ERNESTONE','jevale310879','Andréssanchez20','Hugobttx']:
             mensaje = self.get_despues_de_aceptado()
             
         notification_id = notificacion['id']
@@ -747,6 +747,11 @@ class NotificadorCompraCostaRica(NotificadorCompra):
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(verificador, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}\n{nombre_de_local}')
             self.sendtext(administrador, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}\n{nombre_de_local}')
+
+            for msj in contact_messages:
+                self.sendtext(administrador,msj['msg'])
+                self.sendtext(verificador,msj['msg'])
+
 
             print(enviado_telegram, ' Mensaje de compra enviado a telegram ', flush=True)
 

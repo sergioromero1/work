@@ -7,7 +7,7 @@ import sys
 
 if __name__ == "__main__":
 
-    porcentaje_de_ganancia = 1.03
+    porcentaje_de_ganancia = 1.07
     minimo = 50
     comision_local = 0.01
     currency = 'MXN'
