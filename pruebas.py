@@ -104,7 +104,7 @@ def prueba_rapida():
     # contact_id = '76032632'
     # contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
     # cm = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
-    cm = conn.call(method='GET', url=f'/api/dashboard/released/').json()
+    cm = conn.call(method='GET', url=f'/api/countrycodes/').json()
     print(cm)
 
 

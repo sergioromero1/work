@@ -6,8 +6,8 @@ import sys
 if __name__ == "__main__":
 
     posicion= sys.argv[1]
-    currency = 'USDT'
-    ad_id = '1407331'
+    currency = 'USD'
+    ad_id = '1458179'
     key = COMPRA_KEY
     secret = COMPRA_SECRET
     comprador = Comprador(currency, ad_id, posicion, key, secret)

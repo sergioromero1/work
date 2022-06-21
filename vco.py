@@ -1,4 +1,4 @@
-from agentes.vendedor import Vendedor
+from agentes.vendedor_simplificado import VendedorSimplificado
 from settings.settings import MX_KEY, MX_SECRET
 
 import sys
@@ -6,7 +6,7 @@ import sys
 if __name__ == "__main__":
 
     porcentaje_de_ganancia = 1.07
-    minimo = 100000
+    minimo = 500000
     comision_local = 0.01
     currency = 'COP'
     ad_id = '1352295'
@@ -32,8 +32,8 @@ if __name__ == "__main__":
         'require_identification': True,
         'opening_hours': '[[38, 80], [35, 88], [35, 88], [35, 88], [35, 88], [35, 88], [36, 80]]'
     }
-    porcentaje_btc = 2/3
+    currency_compra = 'COP'
     vender_solo = True
-    vendedor = Vendedor(porcentaje_de_ganancia, minimo, comision_local, currency, ad_id,key, secret, parametros,porcentaje_btc, vender_solo)
+    vendedor = VendedorSimplificado(porcentaje_de_ganancia, minimo, comision_local, currency, ad_id,key, secret, parametros,currency_compra, vender_solo)
     vendedor.update_price()
     

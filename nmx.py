@@ -26,12 +26,13 @@ if __name__ == "__main__":
                         '002180700913724772'
                     }
     verificador = '333685986' #'-1001215642574' #btc_group
+    verificador2 = ''
     administrador = '333685986' #sergio
     key = MX_KEY
     secret = MX_SECRET
     bot_token = BOT_TOKEN
     enviar_mensaje = True
-    notificador = Notificador(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador,enviar_mensaje) 
+    notificador = Notificador(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador,enviar_mensaje,verificador2) 
     notificador.iniciar()
 
 

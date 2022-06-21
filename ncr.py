@@ -34,13 +34,14 @@ if __name__ == "__main__":
                     }
                     
     verificador = '1526093626' #kozel
+    verificador2 = ''
     administrador = '333685986' #sergio
     key = CR_KEY
     secret = CR_SECRET
     bot_token = BOT_TOKEN
     enviar_mensaje = True
     clientes_dc = ['josedmarin','Djpb0102', 'camedina11', 'elissakmd', 'DanielRuiz11', 'Ricardo8830', 'EileenArguedasM', 'Ricardo8830', 'ailak', 'grios14', 'cris_sulbaran','nazuaje','ERNESTONE','jevale310879','Andréssanchez20']
-    notificador = NotificadorVentaCostaRica(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador,enviar_mensaje) 
+    notificador = NotificadorVentaCostaRica(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador,enviar_mensaje, verificador2) 
     notificador.iniciar()
 
 

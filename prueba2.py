@@ -14,8 +14,8 @@ def atender_nuevo_mensaje():
             print('hola')
 
 def sendt():
-    bot_message = 'esto es prueba pirobos'
-    send_text = 'https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage?chat_id=' + '-1001215642574' + '&parse_mode=Markdown&text=' + bot_message
+    bot_message = 'hola alejo '
+    send_text = 'https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage?chat_id=' + '5364458308' + '&parse_mode=Markdown&text=' + bot_message
     response = requests.post(send_text)
     print(response.json()['ok'])
 

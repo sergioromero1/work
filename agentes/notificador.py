@@ -12,7 +12,7 @@ import time
 
 class Notificador:
 
-    def __init__(self, bot_token,currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador,administrador, enviar_mensaje):
+    def __init__(self, bot_token,currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador,administrador, enviar_mensaje, verificador2):
 
         self.administrador = administrador
         self.bot_token = bot_token
@@ -25,6 +25,7 @@ class Notificador:
         self.receptor = receptor
         self.receptores = receptores
         self.verificador = verificador
+        self.verificador2 = verificador2
 
     def get_atributos(self, *nombres: str):
         """Retorna los atributos solicitados como una tupla"""
@@ -105,8 +106,7 @@ class Notificador:
 
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(verificador,f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
-            if currency == 'CRC':
-                self.sendtext(administrador,f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
+            self.sendtext(administrador, f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
             print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]} '), flush=True)
 
     def atender_nuevo_mensaje(self, notificacion, conn):
@@ -140,8 +140,7 @@ class Notificador:
             print(enviar_mensaje.json(), ' Mensaje de venta completada enviado', flush=True)
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(verificador, f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
-            if currency == 'CRC':
-                self.sendtext(administrador, f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
+            self.sendtext(administrador, f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}')
             print(enviado_telegram, self.con_color(f' Mensaje para revisar enviado a {currency[0:2]}'), flush=True)
 
     def escribir_log(self, btc, fiat):
@@ -180,8 +179,7 @@ class Notificador:
     def get_message_btc_liberados(self):
         """Devuelve el mensaje después de liberar los BTC"""
         
-        mensaje = 'Liberados gracias por tu compra y por calificar. \n' \
-        'Si ya calificaste ha sido un placer negociar contigo de nuevo.'
+        mensaje = 'Liberados, excelente día' # racias por tu compra y por calificar. \n Si ya calificaste ha sido un placer negociar contigo de nuevo.'
         
         return  mensaje
 
@@ -336,8 +334,8 @@ class Notificador:
 class NotificadorCompra(Notificador):
 
     """Para mexico estamos comprand en colombia entonces para 'MXN se hace una conversion en el log"""
-    def __init__(self, bot_token, currency, id_ad, key, secret, sleep_time, receptor, receptores, verificador, administrador, enviar_mensaje, currency_venta):
-        super().__init__(bot_token, currency, id_ad, key, secret, sleep_time, receptor, receptores, verificador,administrador, enviar_mensaje)
+    def __init__(self, bot_token, currency, id_ad, key, secret, sleep_time, receptor, receptores, verificador, administrador, enviar_mensaje, verificador2,  currency_venta):
+        super().__init__(bot_token, currency, id_ad, key, secret, sleep_time, receptor, receptores, verificador,administrador, enviar_mensaje, verificador2)
         self.currency_venta = currency_venta
 
     def atender_final_compra(self, notificacion, conn):
@@ -367,7 +365,7 @@ class NotificadorCompra(Notificador):
 
         """Atiende la notificacion de 'tiene un nuevo comercio'"""
 
-        administrador, verificador = self.get_atributos("administrador", "verificador")
+        administrador, verificador, verificador2 = self.get_atributos("administrador", "verificador","verificador2")
 
 
         num_cuenta = False
@@ -403,6 +401,7 @@ class NotificadorCompra(Notificador):
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(verificador , f'ahoros {cuenta[0]}\n {amount}')
             self.sendtext(administrador , f'ahoros {cuenta[0]}\n {amount}')
+            self.sendtext(verificador2 , f'ahoros {cuenta[0]}\n {amount}')
             print(enviado_telegram, ' Mensaje de compra enviado a telegram ', flush=True)
 
         else:
@@ -414,7 +413,7 @@ class NotificadorCompra(Notificador):
 
         """Atiende un mensaje nuevo"""
 
-        administrador, verificador = self.get_atributos("administrador", "verificador")
+        administrador, verificador,verificador2 = self.get_atributos("administrador", "verificador", "verificador2")
 
 
         mensaje = self.get_message_cuenta_identificada()
@@ -447,6 +446,7 @@ class NotificadorCompra(Notificador):
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(verificador , f'ahoros {cuenta[0]}\n {amount}')
             self.sendtext(administrador , f'ahoros {cuenta[0]}\n {amount}')
+            self.sendtext(verificador2 , f'ahoros {cuenta[0]}\n {amount}')
             print(enviado_telegram, self.con_color(' Mensaje de compra enviado a telegram '), flush=True)
 
     def escribir_log(self, btc, fiat):
@@ -455,7 +455,7 @@ class NotificadorCompra(Notificador):
         si es compra de pesos colombianos, se supone qe es para mex y escribe una
         tercera columna con los cop"""
 
-        administrador, currency  = self.get_atributos("administrador", "currency")
+        administrador, currency, currency_venta  = self.get_atributos("administrador", "currency", "currency_venta")
 
         if not os.path.isfile(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv'):
             fiat_saldo_dia_anterior , btc_saldo_dia_anterior = self.get_saldo_dia_anterior()
@@ -464,19 +464,19 @@ class NotificadorCompra(Notificador):
                 writer.writerow([fiat_saldo_dia_anterior,btc_saldo_dia_anterior])
         
         if currency == 'COP':
-            p_c = self.get_precio_de_cambio('MXN')
+            p_c = self.get_precio_de_cambio(currency_venta)
             fiat2 = float(fiat) / float(p_c)
             with open(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow([fiat2,btc,fiat])
-                self.sendtext(administrador, f'se escribio en log de compra {currency}, {btc}, {fiat} ')
+                writer.writerow([fiat2,btc,fiat,currency_venta])
+                self.sendtext(administrador, f'se escribio en log de compra {currency}, {btc}, {fiat} para venta en {currency_venta} ')
 
         else:
 
             with open(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', 'a', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow([fiat,btc])
-                self.sendtext(administrador, f'se escribio en log de de compra {currency}, {btc}, {fiat}')
+                self.sendtext(administrador, f'se escribio en log de de compra {currency}, {btc}, {fiat} para venta en {currency_venta}')
 
     def get_saldo_dia_anterior(self):
         """Lee y retorna los valores totales de btc sin vender del dia anterior"""
@@ -487,9 +487,14 @@ class NotificadorCompra(Notificador):
             if os.path.isfile(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=td))}.csv'):
                 with open(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=td))}.csv', newline='') as f:
                     reader = csv.reader(f)
-                    for row in reader:
-                        total_btc_compra += float(row[1])
-        
+                    if currency == 'COP':
+                        for row in reader:
+                            if row[3] == currency_venta:
+                                total_btc_compra += float(row[1])
+                    else:
+                        for row in reader:
+                            total_btc_compra += float(row[1])
+
             total_btc_venta = 0
             if os.path.isfile(f'logs/V-{currency_venta[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=td))}.csv'):
                 with open(f'logs/V-{currency_venta[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=td))}.csv', newline='') as f:
@@ -501,11 +506,20 @@ class NotificadorCompra(Notificador):
             if os.path.isfile(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=td))}.csv'):
                 with open(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date()-datetime.timedelta(days=td))}.csv', newline='') as f:
                     reader = csv.reader(f)
-                    for row in reader:
-                        if float(row[1]) != 0:
-                            precio = float(row[0])/float(row[1])
-                            peso = float(row[1]) / total_btc_compra
-                            precio_de_compra_dia_anterior += precio * peso
+                    if currency == 'COP':
+                        for row in reader:
+                            if float(row[1]) != 0:
+                                if row[3] == currency_venta:
+                                    precio = float(row[0])/float(row[1])
+                                    peso = float(row[1]) / total_btc_compra
+                                    precio_de_compra_dia_anterior += precio * peso
+                    
+                    else:
+                        for row in reader:
+                            if float(row[1]) != 0:
+                                    precio = float(row[0])/float(row[1])
+                                    peso = float(row[1]) / total_btc_compra
+                                    precio_de_compra_dia_anterior += precio * peso
                 
                 break
 
@@ -540,7 +554,7 @@ class NotificadorCompra(Notificador):
 
         """Lee los valores del log"""
 
-        currency, = self.get_atributos("currency")
+        currency, currency_venta = self.get_atributos("currency", "currency_venta")
 
         t='C'
 
@@ -702,7 +716,7 @@ class NotificadorCompraCostaRica(NotificadorCompra):
 
         """Atiende la notificacion de 'tiene un nuevo comercio'"""
 
-        administrador, verificador = self.get_atributos("administrador", "verificador")
+        administrador, verificador, verificador2 = self.get_atributos("administrador", "verificador", "verificador2")
 
         num_cuenta = False
         
@@ -747,10 +761,12 @@ class NotificadorCompraCostaRica(NotificadorCompra):
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(verificador, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}\n{nombre_de_local}')
             self.sendtext(administrador, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}\n{nombre_de_local}')
+            self.sendtext(verificador2, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}\n{nombre_de_local}')
 
             for msj in contact_messages:
                 self.sendtext(administrador,msj['msg'])
                 self.sendtext(verificador,msj['msg'])
+                self.sendtext(verificador2,msj['msg'])
 
 
             print(enviado_telegram, ' Mensaje de compra enviado a telegram ', flush=True)
@@ -764,7 +780,7 @@ class NotificadorCompraCostaRica(NotificadorCompra):
 
         """Atiende un mensaje nuevo"""
 
-        administrador, verificador = self.get_atributos("administrador", "verificador")
+        administrador, verificador,verificador2 = self.get_atributos("administrador", "verificador","verificador2")
 
         mensaje = self.get_message_cuenta_identificada()
 
@@ -806,6 +822,8 @@ class NotificadorCompraCostaRica(NotificadorCompra):
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(verificador, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}\n{nombre_de_local} ')
             self.sendtext(administrador, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}\n{nombre_de_local} ')
+            self.sendtext(verificador2, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}\n{nombre_de_local} ')
+
 
             print(enviado_telegram, self.con_color(' Mensaje de compra enviado a telegram '), flush=True)
 
@@ -815,7 +833,7 @@ class NotificadorCompraTether(NotificadorCompra):
 
         """Atiende la notificacion de 'tiene un nuevo comercio'"""
 
-        administrador, verificador = self.get_atributos("administrador", "verificador")
+        administrador, verificador,verificador2 = self.get_atributos("administrador", "verificador","verificador2")
 
         num_cuenta = False
         
@@ -859,6 +877,7 @@ class NotificadorCompraTether(NotificadorCompra):
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(verificador, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}')
             self.sendtext(administrador, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}')
+            self.sendtext(verificador2, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}')
 
             print(enviado_telegram, ' Mensaje de compra enviado a telegram ', flush=True)
 
@@ -871,7 +890,7 @@ class NotificadorCompraTether(NotificadorCompra):
 
         """Atiende un mensaje nuevo"""
 
-        administrador, verificador = self.get_atributos("administrador", "verificador")
+        administrador, verificador,verificador2 = self.get_atributos("administrador", "verificador","verificador2")
 
         mensaje = self.get_message_cuenta_identificada()
 
@@ -912,4 +931,5 @@ class NotificadorCompraTether(NotificadorCompra):
             amount = contact_info['amount'] + ' ' + contact_info['currency']
             enviado_telegram = self.sendtext(verificador, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}')
             self.sendtext(administrador, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}')
+            self.sendtext(verificador2, f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{cuenta3}')
             print(enviado_telegram, self.con_color(' Mensaje de compra enviado a telegram '), flush=True)

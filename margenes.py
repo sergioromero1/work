@@ -22,6 +22,7 @@ def get_precio_de_cambio(currency):
     soup = BeautifulSoup(page.text, 'html.parser')
 
     part1 = soup.find(class_="ccOutputTrail").previous_sibling
+    part1 = part1.replace(",","")
     part2 = soup.find(class_="ccOutputTrail").get_text(strip=True)
     rate = f"{part1}{part2}"
 
@@ -37,15 +38,17 @@ def informacion_comerciantes(conn, currency, tipo):
 
     response = conn.call(method='GET',url= f'/{tipo}-bitcoins-online/{currency}/.json')
     ad = response.json()['data']['ad_list']
-    info = {'primero':{}, 'segundo':{}, 'tercero':{}, 'cuarto':{}, 'quinto':{}, 'sexto':{}}
+    info = {}
+    for posicion in range(len(ad)):
+        info[f'{posicion}'] = {}
+    
     position = 0
-
     for inside_dict in info.values():
         
         inside_dict['name'] = str(ad[position]['data']['profile']['username'])
         inside_dict['price'] = float(ad[position]['data']['temp_price'])
         inside_dict['min_amount'] = float(ad[position]['data']['min_amount']) if ad[position]['data']['min_amount'] is not None else 0
-        inside_dict['max_amount'] = float(ad[position]['data']['max_amount_available'])
+        inside_dict['max_amount'] = float(ad[position]['data']['max_amount_available']) if ad[position]['data']['max_amount_available'] is not None else 0
 
         position += 1
 
@@ -58,6 +61,10 @@ def margen(conn, currency, mmin, mmax):
 
     if currency == 'MXN':
         precio_cambio = float(get_precio_de_cambio('MXN'))
+        precio_compra = precio(conn,'COP', 200000, 1800000, 'sell') / precio_cambio
+
+    if currency == 'USD':
+        precio_cambio = float(get_precio_de_cambio('USD'))
         precio_compra = precio(conn,'COP', 200000, 1800000, 'sell') / precio_cambio
     
     margen = precio_venta / precio_compra - COMISION_LOCAL
@@ -73,15 +80,18 @@ def precio(conn, currency, mmin, mmax, tipo):
             break
 
     primer_precio = info[f'{puesto_a_superar}']['price']
-
+    
     return primer_precio
 
 def main():
     conn = conectar()
     m_cr = round(margen(conn, 'CRC', 10000, 300000),3)
     m_mx = round(margen(conn, 'MXN', 100, 10000),3)
+    m_ec = round(margen(conn, 'USD', 100, 400),3)
     print(f'Margen CR:  {m_cr}')
     print(f'Margen MX:  {m_mx}')
+    print(f'Margen EC:  {m_ec}')
+
 
 
 if __name__ == "__main__":
