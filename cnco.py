@@ -8,7 +8,7 @@ if __name__ == "__main__":
     sleep_time = 20
     receptor = ''
     receptores = {}
-    verificador = '5364458308'#alejandro '1526093626' #kozel
+    verificador = ''#'5364458308'#alejandro '1526093626' #kozel
     verificador2 = ''
     administrador = '333685986' #sergio
     key = COMPRA_KEY
