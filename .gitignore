@@ -4,3 +4,6 @@ __pycache__
 json_dict/*
 pruebas.py
 logs/*
+*.pem
+server.pem
+apuntes.txt
