@@ -85,6 +85,7 @@ class Revisor:
                 print(f'logs/{t}-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv')
                 reader = csv.reader(f)
                 for row in reader:
+                    print(row)
                     if float(btc) == float(row[1]):
                         encontrado = True
 
