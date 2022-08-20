@@ -82,6 +82,7 @@ class Revisor:
         encontrado = False
         if os.path.isfile(f'logs/{t}-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv'):
             with open(f'logs/{t}-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', newline='') as f:
+                print(f'logs/{t}-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv')
                 reader = csv.reader(f)
                 for row in reader:
                     if float(btc) == float(row[1]):
