@@ -35,8 +35,7 @@ if __name__ == "__main__":
         'opening_hours': '[[38, 80], [35, 88], [35, 88], [35, 90], [35, 88], [35, 88], [36, 80]]',
     }
     currency_compra = 'COP'
-    vender_solo = False
-    vendedor = Vendedor(porcentaje_de_ganancia, minimo, comision_local, currency, ad_id,key, secret, parametros,currency_compra, vender_solo)
+    vendedor = Vendedor(porcentaje_de_ganancia, minimo, comision_local, currency, ad_id,key, secret, parametros,currency_compra)
     vendedor.update_price()
         
     
