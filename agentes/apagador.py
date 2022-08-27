@@ -5,7 +5,7 @@ from pytz import timezone
 
 class Apagador(Caller):
     
-    def apagar_ad(self, conn):
+    def ad(self, conn, visible):
 
         ad_id,params = self.get_atributos("ad_id","parametros")
         
@@ -14,10 +14,10 @@ class Apagador(Caller):
         params['price_equation'] = precio_actual
         params['min_amount'] = min_amount
         params['max_amount'] = max_amount
-        params['visible'] = False
+        params['visible'] = visible
 
         response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
-        print(response.json(), f'Ad apagada', flush=True)
+        print(response.json(), f'Ad visible {visible}', flush=True)
 
     def precio_actual(self, conn):
 
@@ -32,20 +32,6 @@ class Apagador(Caller):
         precio_actual = float(ad['temp_price'])
     
         return precio_actual, min_amount, max_amount
-
-    def prender_ad(self, conn):
-
-        ad_id, params = self.get_atributos("ad_id", "parametros")
-
-        precio_actual, min_amount, max_amount = self.precio_actual(conn)
-
-        params['price_equation'] = precio_actual
-        params['min_amount'] = min_amount
-        params['max_amount'] = max_amount
-        params['visible'] = True
-        
-        response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
-        print(response.json(), f'Ad prendida', flush=True)
 
     def actuar(self):
 
@@ -65,13 +51,11 @@ class Apagador(Caller):
             hora_medio_dia_final2 = datetime(hora_actual.year, hora_actual.month, hora_actual.day,20,3,0)
 
             if hora_actual > hora_medio_dia_incial and hora_actual < hora_medio_dia_incial2:
-                self.apagar_ad(conn)
-                print('Turned off', flush=True)
+                self.apagar_ad(conn, visible=False)
                 time.sleep(200)
 
             if hora_actual > hora_medio_dia_final and hora_actual < hora_medio_dia_final2:
-                self.prender_ad(conn)
-                print('Turned on', flush=True)
+                self.prender_ad(conn, visible=True)
                 time.sleep(200)
 
             time.sleep(60)

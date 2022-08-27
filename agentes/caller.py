@@ -47,23 +47,22 @@ class Notificador(Caller):
 
         return visible
 
-    def sendtext(self, receptor, bot_message):
+    def sendtext(self, receptores, bot_message):
 
         bot_token, enviar_mensaje = self.get_atributos("bot_token", "enviar_mensaje")
         if enviar_mensaje:
-            send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + receptor + '&parse_mode=Markdown&text=' + bot_message
-            response = requests.post(send_text)
-            
-            return response.json()['ok']
+            for receptor in receptores:
+                send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + receptor + '&parse_mode=Markdown&text=' + bot_message
+                response = requests.post(send_text)
+                
+                return response.json()['ok']
 
     @loop
     def iniciar(self):
 
-        sleep_time = int(self.sleep_time)
-
         while True:
             self.activar()
-            time.sleep(sleep_time)
+            time.sleep(int(self.sleep_time))
 
     def activar(self):
         administrador, tipo, verificador, enviar_mensaje = self.get_atributos("administrador", "tipo", "verificador", "enviar_mensaje")
@@ -76,13 +75,11 @@ class Notificador(Caller):
             if active and not se_activo:
                 se_activo = True
                 if enviar_mensaje:
-                    self.sendtext(administrador,f'El comercio de {tipo} de CR está PRENDIDO -- PRENDIDO')
-                    self.sendtext(verificador,f'El comercio de {tipo} de CR está PRENDIDO -- PRENDIDO')
+                    self.sendtext([administrador,verificador],f'El comercio de {tipo} de CR está PRENDIDO -- PRENDIDO')
 
             if not active and se_activo:
                 se_activo = False
                 if enviar_mensaje:
-                    self.sendtext(administrador,f'El comercio de {tipo} de CR está APAGADO')
-                    self.sendtext(verificador,f'El comercio de {tipo} de CR está APAGADO')
+                    self.sendtext([administrador,verificador],f'El comercio de {tipo} de CR está APAGADO')
 
     

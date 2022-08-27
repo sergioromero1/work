@@ -3,7 +3,7 @@ from settings.settings import BOT_TOKEN, COMPRA_KEY, COMPRA_SECRET
 
 if __name__ == "__main__":
     currency = 'COP'
-    currency_venta = 'USD'
+    currency_venta = 'MXN'
     id_ad = '1240275'
     sleep_time = 20
     receptor = ''
@@ -15,7 +15,8 @@ if __name__ == "__main__":
     secret = COMPRA_SECRET
     bot_token = BOT_TOKEN
     enviar_mensaje = True
-    notificador = NotificadorCompra(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador, enviar_mensaje, verificador2, currency_venta) 
+    expresiones_regex = [r'\d{11}',r'\d{2,6}[-\s]+\d{2,6}[-\s]+\d{2,6}[-\s]?\d*']
+    notificador = NotificadorCompra(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador, enviar_mensaje, verificador2, currency_venta,expresiones_regex) 
     notificador.iniciar()
         
     

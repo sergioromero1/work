@@ -8,7 +8,7 @@ import time
 
 class Vendedor:
 
-    def __init__(self, porcentaje_de_ganancia, minimo, comision_local, currency, ad_id,key, secret, parametros,currency_compra, vender_solo):
+    def __init__(self, porcentaje_de_ganancia, minimo, comision_local, currency, ad_id,key, secret, parametros,currency_compra):
 
         self.porcentaje_de_ganancia = porcentaje_de_ganancia
         self.minimo = minimo
@@ -19,7 +19,6 @@ class Vendedor:
         self.secret = secret
         self.parametros = parametros
         self.currency_compra = currency_compra
-        self.vender_solo = vender_solo
 
     def get_atributos(self, *nombres: str):
         """Retorna los atributos solicitados como una tupla"""
@@ -97,7 +96,7 @@ class Vendedor:
 
         currency, currency_compra, porcentaje_de_ganancia = self.get_atributos("currency", "currency_compra", "porcentaje_de_ganancia")
 
-        fiat_correspondiente_comprado, btc_comprados = self.leer_log_compra(currency_compra)
+        fiat_correspondiente_comprado, btc_comprados = self.leer_log(currency_compra, tipo='compra')
 
         venta_total_bool, fiat_ultima_fila, btc_ultima_fila, hay_btc = self.verificar_venta_total(currency,currency_compra)
         
@@ -117,8 +116,8 @@ class Vendedor:
         """obtiene el total de btc para el currency"""
         currency, currency_compra = self.get_atributos("currency", "currency_compra")
                         
-        _, btc_comprados = self.leer_log_compra(currency_compra)
-        _, btc_vendidos = self.leer_log(currency)
+        _, btc_comprados = self.leer_log(currency_compra,tipo='compra')
+        _, btc_vendidos = self.leer_log(currency,tipo='venta')
         btc_en_scrow = self.get_btc_en_scrow(conn, currency)
 
         total_btc = round(float(btc_comprados)-float(btc_vendidos)-float(btc_en_scrow),8)
@@ -126,20 +125,6 @@ class Vendedor:
         return total_btc
 
     def adelantar(self, precio_del_otro, conn):
-
-        """Adelanta un precio(se pone por debajo)"""
-
-        ad_id, currency = self.get_atributos("ad_id", "currency")
-        
-        nuevo_precio = round(precio_del_otro - precio_del_otro*0.00001)
-        print(f'El precio a mejorar es {precio_del_otro} {currency}', flush=True)
-        response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
-        mi_nuevo_precio = self.precio_actual(conn)
-        print(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'), flush=True)
-
-        return mi_nuevo_precio
-
-    def adelantar_beta(self, precio_del_otro, conn):
 
         """Adelanta un precio(se pone por debajo)"""
 
@@ -178,26 +163,12 @@ class Vendedor:
         info = self.informacion_comerciantes(conn)
         precio_cuarto = info['cuarto']['price']
 
-        if self.vender_solo:
-            self.adelantar(precio_cuarto, conn)
-        else:
-            self.adelantar_beta(precio_cuarto, conn)
+        self.adelantar(precio_cuarto, conn)
 
         print(self.con_color('\nresting...\n'), flush=True)
         time.sleep(420)
 
-    def fijar(self,precio_limite, conn):
-
-        """Fija el anuncio en un precio determinado"""
-
-        ad_id, currency = self.get_atributos("ad_id", "currency")
-
-        nuevo_precio = precio_limite
-        response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
-        mi_nuevo_precio = self.precio_actual(conn)
-        print(response.json(), f'Precio fijado, Mi precio estabilizado por 15 min es {mi_nuevo_precio} {currency}', flush=True)
-
-    def fijar_beta(self, precio_limite, conn):
+    def fijar(self, precio_limite, conn):
 
         """Fija el anuncio en un precio determinado"""
 
@@ -298,33 +269,19 @@ class Vendedor:
 
         return visible
 
-    def leer_log(self, currency):
+    def leer_log(self, currency, tipo):
         """Lee y retorna los valores totales de fiat y btc del log"""
 
         total_btc = 0
         total_fiat = 0
-        if os.path.isfile(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv'):
-            with open(f'logs/V-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', newline='') as f:
+        if os.path.isfile(f'logs/{tipo.upper()[0]}-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv'):
+            with open(f'logs/{tipo.upper()[0]}-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', newline='') as f:
                 reader = csv.reader(f)
                 for row in reader:
                     total_btc += float(row[1])
                     total_fiat += float(row[0])
                    
         return (round(total_fiat,2) , round(total_btc,8)) if total_btc !=0 else (0 , 0)
-
-    def leer_log_compra(self, currency):
-        """Lee y retorna los valores totales de fiat y btc del log"""
-
-        total_btc = 0
-        total_fiat = 0
-        if os.path.isfile(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv'):
-            with open(f'logs/C-{currency[0:2]}-{str(datetime.datetime.now().date())}.csv', newline='') as f:
-                reader = csv.reader(f)
-                for row in reader:
-                    total_btc += float(row[1])
-                    total_fiat += float(row[0])
-        
-        return (round(total_fiat,2), round(total_btc,8)) if total_btc !=0 else (0,0)
 
     def verificar_venta_total(self, currency,currency_compra):
         """Verifica si ya se vendio todo lo del mismo dia para seguir vendiendo,
@@ -336,8 +293,8 @@ class Vendedor:
                 btc_ultima_fila = reader[-1][1]
                 fiat_ultima_fila = reader[-1][0]
 
-        _, btc_comprados = self.leer_log_compra(currency_compra)
-        _, btc_vendidos = self.leer_log(currency)
+        _, btc_comprados = self.leer_log(currency_compra,tipo='compra')
+        _, btc_vendidos = self.leer_log(currency,tipo='venta')
         diferencia_btc = (abs(btc_comprados - btc_vendidos) - float(btc_ultima_fila))
         comp_vend = abs(btc_comprados - btc_vendidos)
         if comp_vend < 0.00001:
@@ -372,10 +329,8 @@ class Vendedor:
         currency,  = self.get_atributos("currency")
 
         print(self.con_color(f'Precio limite total de {precio_limite_total} {currency} alcanzado'), flush=True)
-        if self.vender_solo:
-            self.fijar(precio_limite_total + 1, conn)
-        else:
-            self.fijar_beta(precio_limite_total + 1, conn)
+
+        self.fijar(precio_limite_total + 1, conn)
 
         time.sleep(350)
 
@@ -435,11 +390,8 @@ class Vendedor:
                 self.precio_limite_alcanzado(conn, precio_limite_total)
                 continue
 
-            if self.vender_solo:
-                precio_de_inicio,_,_ = self.adelantar(precio_del_otro, conn)
-            else:
-                precio_de_inicio,_,_ = self.adelantar_beta(precio_del_otro, conn)
-            
+            precio_de_inicio,_,_ = self.adelantar(precio_del_otro, conn)
+
             delta_de_precio = 0
 
             while delta_de_precio < precio_de_inicio*0.01:
@@ -451,10 +403,7 @@ class Vendedor:
                 if mi_precio > precio_limite_total:
 
                     precio_del_otro = self.recorrer_puestos(info, conn)
-                    if self.vender_solo:
-                        self.adelantar(precio_del_otro, conn)
-                    else:
-                        self.adelantar_beta(precio_del_otro, conn)
+                    self.adelantar(precio_del_otro, conn)
 
                 else:
                     self.precio_limite_alcanzado(conn, precio_limite_total)

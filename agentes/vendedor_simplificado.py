@@ -1,12 +1,33 @@
 from agentes.vendedor import Vendedor
 from decoradores.loop import loop
-from utils.color import Color
-import csv
-import datetime
-import os
 import time
 
 class VendedorSimplificado(Vendedor):
+
+    def adelantar(self, precio_del_otro, conn):
+
+        """Adelanta un precio(se pone por debajo)"""
+
+        ad_id, currency = self.get_atributos("ad_id", "currency")
+        
+        nuevo_precio = round(precio_del_otro - precio_del_otro*0.00001)
+        print(f'El precio a mejorar es {precio_del_otro} {currency}', flush=True)
+        response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
+        mi_nuevo_precio = self.precio_actual(conn)
+        print(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'), flush=True)
+
+        return mi_nuevo_precio
+
+    def fijar(self,precio_limite, conn):
+
+        """Fija el anuncio en un precio determinado"""
+
+        ad_id, currency = self.get_atributos("ad_id", "currency")
+
+        nuevo_precio = precio_limite
+        response = conn.call(method='POST', url= f'/api/ad-equation/{ad_id}/', params={'price_equation': f'{nuevo_precio}'})
+        mi_nuevo_precio = self.precio_actual(conn)
+        print(response.json(), f'Precio fijado, Mi precio estabilizado por 15 min es {mi_nuevo_precio} {currency}', flush=True)
 
     @loop
     def update_price(self):
@@ -48,6 +69,7 @@ class VendedorSimplificado(Vendedor):
                 continue
 
             if self.vender_solo:
+                #vender solo es vender que no haya mas btc en venta sino de este comercio
                 precio_de_inicio,_,_ = self.adelantar(precio_del_otro, conn)
             else:
                 precio_de_inicio,_,_ = self.adelantar_beta(precio_del_otro, conn)
