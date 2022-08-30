@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 from .conectar import Connection
 from bs4 import BeautifulSoup
 from datetime import timedelta
@@ -99,7 +100,10 @@ class Revisor:
     def encontrar_comercios(self):
         conn = self.conectar()
         comercios = []
-        lista_liberados = conn.call(method='GET', url=f'/api/dashboard/released/').json()['data']['contact_list']
+        try:
+            lista_liberados = conn.call(method='GET', url=f'/api/dashboard/released/').json()['data']['contact_list']
+        except JSONDecodeError:
+            lista_liberados = {}
         for posicion in lista_liberados:
             time_released = posicion['data']['released_at']
             if self.check_day(time_released):
