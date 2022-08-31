@@ -275,7 +275,7 @@ class Notificador:
 
         notification_id = notificacion['id']
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-        print(marcar_como_leida.json(), f' Notif leida de {tipo}', flush=True)
+        print(marcar_como_leida.json(), f' Notif leida de {descripcion}', flush=True)
 
     def respond_notifications(self):
 
