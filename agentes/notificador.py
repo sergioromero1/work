@@ -456,7 +456,7 @@ class NotificadorCompra(Notificador):
 
         time.sleep(20)
 
-        self.marcar_notificacion_como_leida(conn,notificacion,tipo='Nuevo comercio')
+        self.marcar_notificacion_como_leida(conn,notificacion,descripcion='Nuevo comercio')
 
         mensaje_solicitando_datos = self.get_message_nuevo_comercio()
 
@@ -482,7 +482,7 @@ class NotificadorCompra(Notificador):
         si el cliente envio los datos y estos no se han notificado, los envía.
         """
 
-        self.marcar_notificacion_como_leida(conn,notificacion,tipo='Nuevo mensaje')
+        self.marcar_notificacion_como_leida(conn,notificacion,descripcion='Nuevo mensaje')
 
         num_cuenta, cuenta1, cuenta2, enviado = self.identificar_cuenta(notificacion,conn)
 
