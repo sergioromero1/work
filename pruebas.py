@@ -9,7 +9,7 @@ import sys
 import re
 import csv
 import os
-from settings.settings import MX_KEY, MX_SECRET
+from settings.settings import MX_KEY, MX_SECRET , BOT_TOKEN
 
 
 from urllib.parse import urlparse
@@ -158,6 +158,26 @@ def wb():
     rate = "{}{}".format(part1,part2)
     print(rate)
 
+def sendtext(bot_message):
+
+        verificador = '1526093626' #kozel
+        verificador2 = ''#'5281917452' #leo
+        administrador = '333685986' #sergio
+
+        receptores = [verificador, administrador,verificador2]
+
+        bot_token = BOT_TOKEN
+        if True:
+            for receptor in receptores:
+                print('a')
+                send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + receptor + '&parse_mode=Markdown&text=' + bot_message
+                response = requests.post(send_text)
+                
+            return response.json()['ok']
+
+        else:
+            return 'Envio de mensajes desactivado'
+
 
 class Connection():
 
@@ -255,4 +275,23 @@ if __name__ == "__main__":
 
     # entrada = get_btc_en_scrow('CRC')
     # print(entrada)
-    prueba_rapida()
+    # sendtext('- Apágalo oto \n - Se va a estabilizaaaar ')
+    conn = conectar()
+    contact_messages = conn.call(method='GET', url=f'/api/contact_messages/78942772/').json()['data']['message_list']
+    print(contact_messages)
+
+    def ident(contact_messages):
+        enviado = False
+        for message in contact_messages:
+            if message['msg'][0:4] == 'Ok ,':
+                enviado = True
+        return enviado
+            
+
+    def notif(enviado):
+        print('hola')
+
+    enviado = ident(contact_messages)
+    notif(enviado)
+    
+            

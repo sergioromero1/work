@@ -166,6 +166,12 @@ class Notificador:
         
         return conn
 
+    def get_contact_messages(self,conn, contact_id):
+        pass
+
+    def get_contact_info(self,conn,contact_id):
+        pass
+
     def get_message_nuevo_comercio(self):
         
         receptor, receptores = self.get_atributos("receptor","receptores")
@@ -265,6 +271,12 @@ class Notificador:
 
         return now - created_at
 
+    def marcar_notificacion_como_leida(self,conn, notificacion, descripcion):
+
+        notification_id = notificacion['id']
+        marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
+        print(marcar_como_leida.json(), f' Notif leida de {tipo}', flush=True)
+
     def respond_notifications(self):
 
         """Atiende las notificaciones"""
@@ -317,6 +329,10 @@ class Notificador:
         duracion = end_time - start_time    
         print(self.format_time(duracion), flush=True)
 
+    def enviar_msj_contacto(self,conn, contact_id, msj, descripcion):
+        enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{msj}'})
+        print(enviar_mensaje.json(), f'{descripcion}', flush=True)
+
     def sendtext(self, receptores, bot_message):
 
         bot_token, enviar_mensaje = self.get_atributos("bot_token", "enviar_mensaje")
@@ -325,7 +341,7 @@ class Notificador:
                 send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + receptor + '&parse_mode=Markdown&text=' + bot_message
                 response = requests.post(send_text)
                 
-                return response.json()['ok']
+            return response.json()['ok']
 
         else:
             return 'Envio de mensajes desactivado'
@@ -390,16 +406,17 @@ class NotificadorCompra(Notificador):
         mensaje_cuenta_ident = self.get_message_cuenta_identificada()
 
         contact_id = notificacion['contact_id']
-        contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
-        contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
-        nombre_de_local = contact_info['seller']['username']
 
+        contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
 
         enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje_cuenta_ident}'})
         print(enviar_mensaje.json(),  'Mensaje de cuenta identificada enviado', flush=True)
+
+        nombre_de_local = contact_info['seller']['username']
         amount = contact_info['amount'] + ' ' + contact_info['currency']
         enviado_telegram = self.sendtext([verificador, administrador,verificador2], f'Envia {amount} a:\n{cuenta1}\n{cuenta2}\n{nombre_de_local}')
 
+        contact_messages = conn.call(method='GET', url=f'/api/contact_messages/{contact_id}/').json()['data']['message_list']
         for msj in contact_messages:
             self.sendtext([verificador, administrador,verificador2],msj['msg'])
 
@@ -439,6 +456,8 @@ class NotificadorCompra(Notificador):
 
         time.sleep(20)
 
+        self.marcar_notificacion_como_leida(conn,notificacion,tipo='Nuevo comercio')
+
         mensaje_solicitando_datos = self.get_message_nuevo_comercio()
 
         contact_id = notificacion['contact_id']
@@ -463,9 +482,12 @@ class NotificadorCompra(Notificador):
         si el cliente envio los datos y estos no se han notificado, los envía.
         """
 
+        self.marcar_notificacion_como_leida(conn,notificacion,tipo='Nuevo mensaje')
+
         num_cuenta, cuenta1, cuenta2, enviado = self.identificar_cuenta(notificacion,conn)
 
         if num_cuenta and not enviado:
+
             self.notificar_cuenta_identificada(notificacion, conn,cuenta1,cuenta2)
 
     def escribir_log(self, btc, fiat):
