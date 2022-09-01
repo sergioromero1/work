@@ -7,7 +7,7 @@ if __name__ == "__main__":
     id_ad = '1458177'
     sleep_time = 30
     receptor = sys.argv[1]
-    receptores = {'alejandro': 'ALEJANDRO RODRIGUEZ \n\n BANCO PICHINCHA\n No de cuenta   2205166757'\
+    receptores = {'alejandro': 'Hola \n ALEJANDRO RODRIGUEZ \n\n BANCO PICHINCHA\n No de cuenta   2205166757'\
                             'BANCO GUAYAQUIL \n No de cuenta   0030968268'
                     }
     verificador = '5364458308' #'alejandro
