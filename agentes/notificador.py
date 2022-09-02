@@ -218,7 +218,7 @@ class Notificador:
         
         contact_id = notificacion['contact_id']
         contact_info = self.get_contact_info(conn, contact_id)
-        ad_id = contact_info.json()['data']['advertisement']['id']
+        ad_id = contact_info['advertisement']['id']
         
         return str(ad_id)
 
@@ -322,11 +322,12 @@ class Notificador:
     def send_msg_contact(self,conn, contact_id, mensaje, descripcion, verbose=False):
 
         """Envia un mensaje a un contact_id"""
-
-        enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
+        
+        # enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
 
         if verbose == True:
-            print(enviar_mensaje.json(), f'{descripcion}', flush=True)
+            # print(enviar_mensaje.json(), f'{descripcion}', flush=True)
+            print('hoola', f'{descripcion}', flush=True)
 
     def send_text(self, receptores, bot_message, verbose=False):
 
@@ -429,7 +430,7 @@ class NotificadorCompra(Notificador):
         Si no envia un msj al cliente solicitandolos.
         """
 
-        time.sleep(20)
+        time.sleep(10)
 
         self.marcar_notificacion_como_leida(conn,notificacion,descripcion='Nuevo comercio')
 
