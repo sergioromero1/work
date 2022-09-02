@@ -97,7 +97,7 @@ def get_notification():
         'reference_code': 'L78952833B1B08E9',
         'account_info': 'Transferencia⭐BAC⭐SINPE⭐RAPIDO⚡️️️'
     }
-    contact_mesages  = nc.get_contact_messages(conn,  notificacion['contact_id'])
+    # contact_mesages  = nc.get_contact_messages(conn,  notificacion['contact_id'])
     print(contact_mesages)
 
 

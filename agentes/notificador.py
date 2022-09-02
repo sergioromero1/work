@@ -323,7 +323,7 @@ class Notificador:
 
         """Envia un mensaje a un contact_id"""
         
-        # enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
+        enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
 
         if verbose == True:
             # print(enviar_mensaje.json(), f'{descripcion}', flush=True)
