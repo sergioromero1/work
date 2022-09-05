@@ -258,7 +258,7 @@ class Notificador:
         """Atiende las notificaciones"""
 
         id_ad, currency = self.get_atributos("id_ad", "currency")
-        print(self.con_color(f'Revisando notificaciones...{currency[0:2]}'), flush=True)
+        # print(self.con_color(f'Revisando notificaciones...{currency[0:2]}'), flush=True)
         start_time = time.time()
         conn = self.conectar()
         response = conn.call(method='GET', url='/api/notifications/')
@@ -303,7 +303,7 @@ class Notificador:
 
         end_time = time.time()
         duracion = end_time - start_time    
-        print(self.format_time(duracion), flush=True)
+        # print(self.format_time(duracion), flush=True)
 
     def revisar_valores_en_log(self,btc,fiat,tipo):
 
@@ -326,8 +326,7 @@ class Notificador:
         enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
 
         if verbose == True:
-            # print(enviar_mensaje.json(), f'{descripcion}', flush=True)
-            print('hoola', f'{descripcion}', flush=True)
+            print(enviar_mensaje.json(), f'{descripcion}', flush=True)
 
     def send_text(self, receptores, bot_message, verbose=False):
 
@@ -573,7 +572,7 @@ class NotificadorCompra(Notificador):
         """Atiende las notificaciones"""
 
         id_ad, currency = self.get_atributos("id_ad", "currency")
-        print(self.con_color(f'Revisando notificaciones...{currency[0:2]}'), flush=True)
+        # print(self.con_color(f'Revisando notificaciones...{currency[0:2]}'), flush=True)
         start_time = time.time()
         conn = self.conectar()
         response = conn.call(method='GET', url='/api/notifications/')
@@ -610,7 +609,7 @@ class NotificadorCompra(Notificador):
 
         end_time = time.time()
         duracion = end_time - start_time    
-        print(self.format_time(duracion), flush=True)
+        # print(self.format_time(duracion), flush=True)
 
 class NotificadorVentaCostaRica(Notificador):
 
