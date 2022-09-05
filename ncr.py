@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
                     }
                     
-    verificador = '1526093626' #kozel
+    verificador = ''#'1526093626' #kozel
     verificador2 = ''
     administrador = '333685986' #sergio
     key = CR_KEY
