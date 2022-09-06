@@ -39,9 +39,9 @@ def get_notification():
 
     nc = NotificadorCompra(BOT_TOKEN, currency, id_ad,MX_KEY, MX_SECRET, sleep_time, receptor, receptores, verificador, administrador, enviar_mensaje,verificador2, currency_venta, expresiones_regex)
     conn = nc.conectar()
-    response = conn.call(method='GET', url='/api/notifications/')
-    notificaciones = response.json()['data']
-    print(notificaciones[2])
+    # response = conn.call(method='GET', url='/api/notifications/')
+    # notificaciones = response.json()['data']
+    # print(notificaciones[2])
 
     notificacion = {
         'read': True, 
@@ -98,7 +98,10 @@ def get_notification():
         'account_info': 'Transferencia⭐BAC⭐SINPE⭐RAPIDO⚡️️️'
     }
     # contact_mesages  = nc.get_contact_messages(conn,  notificacion['contact_id'])
-    print(contact_mesages)
+    # print(contact_mesages)
+    lista_liberados = conn.call(method='GET', url=f'/api/dashboard/released/').json()['data']['contact_list']
+    print(lista_liberados)
+
 
 
 
