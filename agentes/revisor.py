@@ -102,7 +102,7 @@ class Revisor:
         comercios = []
         try:
             lista_liberados = conn.call(method='GET', url=f'/api/dashboard/released/').json()['data']['contact_list']
-        except JSONDecodeError:
+        except ValueError:
             lista_liberados = {}
         for posicion in lista_liberados:
             time_released = posicion['data']['released_at']

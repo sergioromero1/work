@@ -161,7 +161,10 @@ class Vendedor:
 
 
         info = self.informacion_comerciantes(conn)
-        precio_cuarto = info['cuarto']['price']
+        try:
+            precio_cuarto = info['cuarto']['price']
+        except KeyError:
+            precio_cuarto = info['segundo']['price']
 
         self.adelantar(precio_cuarto, conn)
 
