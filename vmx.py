@@ -8,7 +8,7 @@ import sys
 if __name__ == "__main__":
 
     porcentaje_de_ganancia = 1.09
-    minimo = 50
+    minimo = 200
     comision_local = 0.01
     currency = 'MXN'
     ad_id = '1261529'
