@@ -25,6 +25,7 @@ class Vendedor:
 
         return (self.__dict__[nombre] for nombre in nombres)
 
+    #OK
     def get_btc_en_scrow(self, conn, currency):
         
         response = conn.call(method='GET',url= f'/api/dashboard/')
@@ -45,7 +46,7 @@ class Vendedor:
             return round(info[f'{currency[0:2]}'],8) if info[f'{currency[0:2]}'] !=0 else 0
 
         return info[f'{currency[0:2]}']
-
+    #OK
     def get_saldo_dia_anterior(self):
         """Lee y retorna los valores totales de btc sin vender del dia anterior"""
         currency, currency_compra = self.get_atributos("currency", "currency_compra")
@@ -81,7 +82,7 @@ class Vendedor:
         total_fiat = total_btc * precio_de_compra_dia_anterior
         
         return (round(total_fiat,2), round(total_btc,8)) if total_btc > 0.00007 else (0 , 0)
-
+    #OK
     def escribir_saldo_dia_anterior(self):
 
         currency_compra, = self.get_atributos("currency_compra")
@@ -124,6 +125,13 @@ class Vendedor:
 
         return total_btc
 
+    def get_my_trade_count(self,conn):
+        username = 'sromero'
+        my_self = conn.call(method='GET',url= f'/api/account_info/{username}/')
+        my_trade_count = float(my_self.json()['data']['confirmed_trade_count_text'].replace('+',''))
+
+        return my_trade_count
+
     def adelantar(self, precio_del_otro, conn):
 
         """Adelanta un precio(se pone por debajo)"""
@@ -141,6 +149,14 @@ class Vendedor:
         print(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'), flush=True)
 
         return mi_nuevo_precio
+
+    def actualizar_ad(self,conn, ad_id, params):
+
+        currency, = self.get_atributos("currency")
+
+        response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
+        mi_nuevo_precio = self.precio_actual(conn)
+        print(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'), flush=True)
 
     def conectar(self,server='https://localbitcoins.com'):
 
@@ -219,8 +235,11 @@ class Vendedor:
                 
                 inside_dict['name'] = str(ad[position]['data']['profile']['username'])
                 inside_dict['price'] = float(ad[position]['data']['temp_price'])
-                inside_dict['min_amount'] = float(ad[position]['data']['min_amount']) if ad[position]['data']['min_amount'] is not None else 0
+                inside_dict['min_amount'] = float(ad[position]['data']['min_amount']) if ad[position]['data']['min_amount_available'] is not None else 0
                 inside_dict['max_amount'] = float(ad[position]['data']['max_amount_available']) if ad[position]['data']['max_amount_available'] is not None else (inside_dict['min_amount'] + 1) * 10
+                inside_dict['trade_count'] = float(ad[position]['data']['profile']['trade_count'].replace('+',''))
+                inside_dict['feedback_score'] = float(ad[position]['data']['profile']['feedback_score'])
+                inside_dict['currency'] = str(ad[position]['data']['currency'])
 
                 position += 1
 
@@ -340,13 +359,26 @@ class Vendedor:
     def recorrer_puestos(self,info, conn):
         
         """Recorre las posiciones para saber donde ubicarse y se ubica en la 
-            mejor oferta de precio. Si no encuentra puesto a superar se ubica en el cuarto
+            mejor oferta de precio. 
+
         """
 
+        currency,  = self.get_atributos("currency")
+
         _, mi_min , mi_max = self.precio_actual(conn)
+        my_trade_count = self.get_my_trade_count(conn)
         puesto_a_superar = 'segundo'
         for puesto,datos in info.items():
-            if mi_max >= datos['min_amount'] and mi_min <= datos['max_amount'] and datos['name'] != 'sromero':
+            if (
+                mi_max >= datos['min_amount'] and
+                mi_min <= datos['max_amount'] and 
+                datos['name'] != 'sromero' and 
+                datos['currency'] == currency
+                ):
+                if mi_max / datos['max_amount'] >=2.5: ## entre mas alto este numero con menos max amount de los otros , combate
+                    continue 
+                if my_trade_count / datos['trade_count']  >= 10: ## entre mas alto este numero con menos trade count de los otros , combate
+                    continue
                 puesto_a_superar = str(puesto)
                 break
 
