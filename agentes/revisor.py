@@ -1,4 +1,3 @@
-from json import JSONDecodeError
 from .conectar import Connection
 from bs4 import BeautifulSoup
 from datetime import timedelta

@@ -219,8 +219,11 @@ class Vendedor:
 
         currency,  = self.get_atributos("currency")
         
-        response = conn.call(method='GET',url= f'/buy-bitcoins-online/{currency}/.json')
-        ad = response.json()['data']['ad_list']
+        try:
+            response = conn.call(method='GET',url= f'/buy-bitcoins-online/{currency}/.json')
+            ad = response.json()['data']['ad_list']
+        except ValueError:
+            ad = []
         info = {}
         if len(ad) > 0:
             posiciones = ['primero','segundo','tercero','cuarto','quinto','sexto','septimo','octavo','noveno']
@@ -365,7 +368,7 @@ class Vendedor:
 
         currency,  = self.get_atributos("currency")
 
-        _, mi_min , mi_max = self.precio_actual(conn)
+        precio_actual, mi_min , mi_max = self.precio_actual(conn)
         my_trade_count = self.get_my_trade_count(conn)
         puesto_a_superar = 'segundo'
         for puesto,datos in info.items():
@@ -382,7 +385,7 @@ class Vendedor:
                 puesto_a_superar = str(puesto)
                 break
 
-        precio_del_otro = info[f'{puesto_a_superar}']['price']
+        precio_del_otro = info[f'{puesto_a_superar}']['price'] if info else precio_actual
 
         return precio_del_otro
 
