@@ -416,14 +416,11 @@ class Vendedor:
             print(f'\nrunning...{currency[0:2]}\n', flush=True)
 
             info = self.informacion_comerciantes(conn)
-            print(info,flush=True)
             
             if len(info) > 0:
                 precio_del_otro = self.recorrer_puestos(info, conn)
-                print('hola',flush=True)
             else:
                 self.precio_limite_alcanzado(conn, precio_limite_total)
-                print('hola 2', flush=True)
                 continue
 
             if precio_del_otro < float(precio_limite_total):
