@@ -145,7 +145,7 @@ class Vendedor:
         prendida = self.is_active(conn)
         params  = self.informacion_del_anuncio(minimo, nuevo_maximo, nuevo_precio, prendida)
         response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
-        mi_nuevo_precio = self.precio_actual(conn)
+        mi_nuevo_precio,_,_ = self.precio_actual(conn)
         print(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'), flush=True)
 
         return mi_nuevo_precio
@@ -155,7 +155,7 @@ class Vendedor:
         currency, = self.get_atributos("currency")
 
         response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
-        mi_nuevo_precio = self.precio_actual(conn)
+        mi_nuevo_precio,_,_ = self.precio_actual(conn)
         print(response.json(), self.con_color(f'Precio adelantado, \n Mi nuevo precio es {mi_nuevo_precio} {currency}'), flush=True)
 
     def conectar(self,server='https://localbitcoins.com'):
@@ -200,7 +200,7 @@ class Vendedor:
         params  = self.informacion_del_anuncio(minimo, nuevo_maximo, nuevo_precio, prendida)
         response = conn.call(method='POST', url= f'/api/ad/{ad_id}/', params={**params})
         
-        mi_nuevo_precio = self.precio_actual(conn)
+        mi_nuevo_precio,_,_ = self.precio_actual(conn)
         print(response.json(), f'Precio fijado, Mi precio estabilizado por 15 min es {mi_nuevo_precio} {currency}', flush=True)
 
     def format_time(self,sec):
@@ -240,7 +240,7 @@ class Vendedor:
                 inside_dict['price'] = float(ad[position]['data']['temp_price'])
                 inside_dict['min_amount'] = float(ad[position]['data']['min_amount_available']) if ad[position]['data']['min_amount_available'] is not None else 0
                 inside_dict['max_amount'] = float(ad[position]['data']['max_amount_available']) if ad[position]['data']['max_amount_available'] is not None else (inside_dict['min_amount'] + 1) * 10
-                inside_dict['trade_count'] = float(ad[position]['data']['profile']['trade_count'].replace('+',''))
+                inside_dict['trade_count'] = float(ad[position]['data']['profile']['trade_count'].replace('+','').replace(' ',''))
                 inside_dict['feedback_score'] = float(ad[position]['data']['profile']['feedback_score'])
                 inside_dict['currency'] = str(ad[position]['data']['currency'])
 
@@ -416,11 +416,14 @@ class Vendedor:
             print(f'\nrunning...{currency[0:2]}\n', flush=True)
 
             info = self.informacion_comerciantes(conn)
+            print(info,flush=True)
             
             if len(info) > 0:
                 precio_del_otro = self.recorrer_puestos(info, conn)
+                print('hola',flush=True)
             else:
                 self.precio_limite_alcanzado(conn, precio_limite_total)
+                print('hola 2', flush=True)
                 continue
 
             if precio_del_otro < float(precio_limite_total):

@@ -142,6 +142,15 @@ def info_pais():
     m = float(my_self.json()['data']['confirmed_trade_count_text'].replace('+',''))
     print(m)
 
+    data = conn.call(method='GET',url= f'/buy-bitcoins-online/CRC/.json')
+    ad = data.json()['data']['ad_list']
+    uno = float(ad[2]['data']['max_amount_available'])
+    dos = float(ad[2]['data']['profile']['trade_count'].replace('+','').replace(' ',''))
+    tres = float(ad[2]['data']['profile']['feedback_score'])
+    cuatro = str(ad[2]['data']['currency'])
+
+    print(uno,dos,tres,cuatro)
+
 
 
 
