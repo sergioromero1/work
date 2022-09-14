@@ -238,7 +238,7 @@ class Vendedor:
                 
                 inside_dict['name'] = str(ad[position]['data']['profile']['username'])
                 inside_dict['price'] = float(ad[position]['data']['temp_price'])
-                inside_dict['min_amount'] = float(ad[position]['data']['min_amount']) if ad[position]['data']['min_amount_available'] is not None else 0
+                inside_dict['min_amount'] = float(ad[position]['data']['min_amount_available']) if ad[position]['data']['min_amount_available'] is not None else 0
                 inside_dict['max_amount'] = float(ad[position]['data']['max_amount_available']) if ad[position]['data']['max_amount_available'] is not None else (inside_dict['min_amount'] + 1) * 10
                 inside_dict['trade_count'] = float(ad[position]['data']['profile']['trade_count'].replace('+',''))
                 inside_dict['feedback_score'] = float(ad[position]['data']['profile']['feedback_score'])

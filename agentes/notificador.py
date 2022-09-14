@@ -56,7 +56,7 @@ class Notificador:
 
             encontrado = self.revisar_valores_en_log(btc,fiat,tipo=tipo)
             if not encontrado:
-                self.escribir_log(btc, fiat)
+                self.escribir_log(btc, fiat,tipo=tipo)
 
     def atender_nuevo_comercio(self, notificacion, conn):
 
