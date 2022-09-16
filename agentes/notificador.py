@@ -52,7 +52,10 @@ class Notificador:
             
             contact_info = self.get_contact_info(conn, contact_id)
             fiat = contact_info['amount']
-            btc = round(float(contact_info['amount_btc']) + float(contact_info['fee_btc']),8)
+            if tipo == 'venta':
+                btc = round(float(contact_info['amount_btc']) + float(contact_info['fee_btc']),8)
+            if tipo == 'compra':
+                btc = round(float(contact_info['amount_btc']) - float(contact_info['fee_btc']),8)
 
             encontrado = self.revisar_valores_en_log(btc,fiat,tipo=tipo)
             if not encontrado:

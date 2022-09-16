@@ -138,18 +138,21 @@ def info_pais():
     # response = conn.call(method='GET',url= f'/buy-bitcoins-online/{currency}/.json')
     # values = response.json()
     username = 'sromero'
-    my_self = conn.call(method='GET',url= f'/api/account_info/{username}/')
-    m = float(my_self.json()['data']['confirmed_trade_count_text'].replace('+',''))
-    print(m)
+    # my_self = conn.call(method='GET',url= f'/api/account_info/{username}/')
+    # m = float(my_self.json()['data']['confirmed_trade_count_text'].replace('+',''))
+    # print(m)
 
-    data = conn.call(method='GET',url= f'/buy-bitcoins-online/CRC/.json')
-    ad = data.json()['data']['ad_list']
-    uno = float(ad[2]['data']['max_amount_available'])
-    dos = float(ad[2]['data']['profile']['trade_count'].replace('+','').replace(' ',''))
-    tres = float(ad[2]['data']['profile']['feedback_score'])
-    cuatro = str(ad[2]['data']['currency'])
+    # data = conn.call(method='GET',url= f'/buy-bitcoins-online/CRC/.json')
+    # ad = data.json()['data']['ad_list']
+    # uno = float(ad[2]['data']['max_amount_available'])
+    # dos = float(ad[2]['data']['profile']['trade_count'].replace('+','').replace(' ',''))
+    # tres = float(ad[2]['data']['profile']['feedback_score'])
+    # cuatro = str(ad[2]['data']['currency'])
 
-    print(uno,dos,tres,cuatro)
+    # print(uno,dos,tres,cuatro)
+
+    info = v.informacion_comerciantes(conn)
+    print(info)
 
 
 
