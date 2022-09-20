@@ -428,7 +428,7 @@ class Vendedor:
                 self.precio_limite_alcanzado(conn, precio_limite_total)
                 continue
 
-            precio_de_inicio,_,_ = self.adelantar(precio_del_otro, conn)
+            precio_de_inicio = self.adelantar(precio_del_otro, conn)
 
             delta_de_precio = 0
 
