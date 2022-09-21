@@ -696,7 +696,7 @@ class NotificadorVentaCostaRica(Notificador):
                         
         if attachment and payed and not enviado:
             
-            self.send_msg_contact(conn, contact_id, mensaje_venta_completada, f'Mensaje nuevo comercio enviado #{contact_id}',verbose=True)
+            self.send_msg_contact(conn, contact_id, mensaje_venta_completada, f'Mensaje venta completada enviado #{contact_id}',verbose=True)
 
             amount = contact_info['amount'] + ' ' + contact_info['currency']
 
