@@ -150,9 +150,9 @@ def info_pais():
     # cuatro = str(ad[2]['data']['currency'])
 
     # print(uno,dos,tres,cuatro)
-
-    info = v.informacion_comerciantes(conn)
-    print(info)
+    enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/79036484/', params={'msg': f'hola'})
+    # info = v.informacion_comerciantes(conn)
+    print(enviar_mensaje)
 
 
 

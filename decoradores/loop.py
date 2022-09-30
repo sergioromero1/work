@@ -6,6 +6,7 @@ def loop(func):
         while True:
             try:
                 func(self)
-            except (ValueError, ConnectionError, JSONDecodeError):
+            except JSONDecodeError as e: #(ValueError, ConnectionError,
+                print(e, flush = True)
                 time.sleep(180)
     return wrapper

@@ -70,7 +70,7 @@ class Notificador:
         contact_id = notificacion['contact_id']
 
         self.marcar_notificacion_como_leida(conn,notificacion,f'Nuevo comercio #{contact_id}')
-
+        
         self.send_msg_contact(conn,contact_id, mensaje_nuevo_comercio, f'Mensaje nuevo comercio enviado #{contact_id}',verbose=True)
 
     def atender_marcado_como_pagado(self,notificacion, conn):

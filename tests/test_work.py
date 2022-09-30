@@ -31,7 +31,6 @@ class TestWork(unittest.TestCase):
 
         self.notificador_compra = NotificadorCompra(BOT_TOKEN, currency, id_ad,MX_KEY, MX_SECRET, sleep_time, receptor, receptores, verificador, administrador, enviar_mensaje,verificador2, currency_venta, expresiones_regex)
 
-
     def test_llamada_notificaciones(self):
         notificador = self.notificador
         rate = float(notificador.get_precio_de_cambio('MXN'))
@@ -95,7 +94,6 @@ class TestWork(unittest.TestCase):
         price = v.recorrer_puestos(info,conn)
         print(precio, mmin,mmax )
         self.assertEqual(price, 413750.37)
-
 
 if __name__ == '__main__':
     unittest.main()
