@@ -1,4 +1,4 @@
-from agentes.notificador import NotificadorCompra
+from agentes.notificador import Notificador, NotificadorCompra , NotificadorVentaCostaRica
 from agentes.vendedor import Vendedor
 import requests
 from settings.settings import BOT_TOKEN, MX_KEY, MX_SECRET
@@ -154,8 +154,42 @@ def info_pais():
     # info = v.informacion_comerciantes(conn)
     print(enviar_mensaje)
 
+def info_pais2():
+    currency = 'MXN'
+    id_ad = '1261529'
+    sleep_time = 30
+    receptor = 'ivan'
+    receptores = {'irene': 'Hola \n BBVA Bancomer \n Maria Irene Martinez \n\n Para pago en oxxo y transferencia \n tarjeta debito \n\n 4152 3137 5463 8984 \n '\
+                        '002180701431343757',
 
+                'cristina': 'Hola \n BBVA Bancomer \n Cristina Nolasco \n\n Para pago en oxxo \n 4152 3135 9796 3326  \n\n Para Transferencia SPEI \n '\
+                        '012180015420804899',
 
+                'ivan': 'Hola \n BBVA Bancomer \n Edgar Ivan Hernandez \n\n Para pago en oxxo \n 4152 3137 6809 4521  \n\n Para Transferencia SPEI \n '\
+                        '012818015379048405',
+
+                }
+    verificador = '' #'-1001215642574' #btc_group
+    verificador2 = ''
+    administrador = '333685986' #sergio
+    key = MX_KEY
+    secret = MX_SECRET
+    bot_token = BOT_TOKEN
+    enviar_mensaje = True
+    notificador = Notificador(bot_token, currency, id_ad,key, secret, sleep_time, receptor, receptores, verificador, administrador,enviar_mensaje,verificador2) 
+    # mensaje = notificador.get_message_nuevo_comercio()
+    conn = notificador.conectar()
+    contact_id = 79125664
+    mensaje_nuevo_comercio = '#'
+    noti = {
+        'read': True, 
+        'created_at': '2022-09-01T23:26:07+00:00', 
+        'msg': '¡Tiene una nueva oferta de #78952833!', 
+        'url': '/contact/3RH1i1M8XLG8mkpSBQBap/online_buy_buyer', 
+        'id': '078efcfed55f', 
+        'contact_id': 78952833}
+    # notificador.send_msg_contact(conn,contact_id, mensaje_nuevo_comercio, f'Mensaje nuevo comercio enviado #{contact_id}',verbose=True)
+    # notificador.marcar_notificacion_como_leida(conn,noti,f'Nuevo comercio #{contact_id}')
 
 if __name__ == "__main__":
-    info_pais()
+    info_pais2()

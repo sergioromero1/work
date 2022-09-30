@@ -69,10 +69,10 @@ class Notificador:
 
         contact_id = notificacion['contact_id']
 
-        self.marcar_notificacion_como_leida(conn,notificacion,f'Nuevo comercio #{contact_id}')
-        
         self.send_msg_contact(conn,contact_id, mensaje_nuevo_comercio, f'Mensaje nuevo comercio enviado #{contact_id}',verbose=True)
-
+        
+        self.marcar_notificacion_como_leida(conn,notificacion,f'Nuevo comercio #{contact_id}')
+    
     def atender_marcado_como_pagado(self,notificacion, conn):
 
         """Atiende la notificacion de marcado como pagado"""
@@ -82,8 +82,6 @@ class Notificador:
         attachment = False
         enviado = False
         contact_id = notificacion['contact_id']
-
-        self.marcar_notificacion_como_leida(conn,notificacion,descripcion=f'contacto marcado como pagado #{contact_id}')
 
         contact_messages = self.get_contact_messages(conn, contact_id)
         for message in contact_messages:
@@ -102,6 +100,8 @@ class Notificador:
 
             self.send_text([verificador, administrador, verificador2],f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}',verbose=True)
 
+        self.marcar_notificacion_como_leida(conn,notificacion,descripcion=f'contacto marcado como pagado #{contact_id}')
+
     def atender_nuevo_mensaje(self, notificacion, conn):
 
         """Atiende un mensaje nuevo"""
@@ -113,7 +113,6 @@ class Notificador:
         enviado = False
         contact_id = notificacion['contact_id']
         
-        self.marcar_notificacion_como_leida(conn,notificacion,descripcion=f'Nuevo mensaje o comprobante #{contact_id}')
 
         contact_messages = self.get_contact_messages(conn, contact_id)
         for message in contact_messages:
@@ -133,6 +132,8 @@ class Notificador:
             amount = contact_info['amount'] + ' ' + contact_info['currency']
 
             self.send_text([verificador,administrador,verificador2], f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}',verbose=True)
+
+        self.marcar_notificacion_como_leida(conn,notificacion,descripcion=f'Nuevo mensaje o comprobante #{contact_id}')
 
     def escribir_log(self, btc, fiat, tipo):
 
@@ -627,9 +628,9 @@ class NotificadorVentaCostaRica(Notificador):
         if contact_info['buyer']['username'] in ['josedmarin','Djpb0102', 'camedina11', 'elissakmd', 'Ricardo8830', 'EileenArguedasM', 'Ricardo8830', 'ailak', 'grios14', 'cris_sulbaran','nazuaje','ERNESTONE','jevale310879','Andréssanchez20','Hugobttx']:
             mensaje = self.get_despues_de_aceptado()
             
-        self.marcar_notificacion_como_leida(conn,notificacion,descripcion=f'Nuevo comercio #{contact_id}')
-
         self.send_msg_contact(conn, contact_id, mensaje, f'Mensaje nuevo comercio enviado #{contact_id}',verbose=True)
+
+        self.marcar_notificacion_como_leida(conn,notificacion,descripcion=f'Nuevo comercio #{contact_id}')
 
     def get_despues_de_aceptado(self):
         
@@ -674,7 +675,6 @@ class NotificadorVentaCostaRica(Notificador):
         contact_messages = self.get_contact_messages(conn, contact_id)
         nombre_de_local = contact_info['buyer']['real_name']
 
-        self.marcar_notificacion_como_leida(conn,notificacion,descripcion=f'Nuevo mensaje o comprobante #{contact_id}')
 
         for message in contact_messages:
             if 'attachment_type' in message:
@@ -693,7 +693,6 @@ class NotificadorVentaCostaRica(Notificador):
 
             self.send_msg_contact(conn, contact_id, mensaje_despues_de_aceptado, f'Mensaje nuevo comercio enviado #{contact_id}',verbose=True)
 
-                        
         if attachment and payed and not enviado:
             
             self.send_msg_contact(conn, contact_id, mensaje_venta_completada, f'Mensaje venta completada enviado #{contact_id}',verbose=True)
@@ -702,6 +701,7 @@ class NotificadorVentaCostaRica(Notificador):
 
             self.send_text([verificador,administrador,verificador2], f'Revisa {amount} en la cuenta de {str(receptor).upper()}\n{nombre_de_local}',verbose=True)
         
+        self.marcar_notificacion_como_leida(conn,notificacion,descripcion=f'Nuevo mensaje o comprobante #{contact_id}')
 
 
 

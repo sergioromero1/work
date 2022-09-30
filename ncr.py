@@ -6,7 +6,7 @@ if __name__ == "__main__":
     currency = 'CRC'
     id_ad = '1381456'
     sleep_time = 25
-    receptor = sys.argv[1]
+    receptor = 'leo'#sys.argv[1]
     receptores = {'kozel': 'Hola \n BAC \n Fernando Josue Kozel Borbon \n\n Numero de cuenta Bac \n 941235723  \n\n Número de cuenta IBAN \n '\
                         'CR36010200009412357238\n\n SINPE MOVIL: 63847393 \n\n En el concepto/referencia escribe: Servicios tecnicos',
 
