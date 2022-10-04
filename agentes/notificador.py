@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 import csv
 import datetime
+import pytz
 import os
 import re
 import requests
@@ -266,8 +267,11 @@ class Notificador:
         start_time = time.time()
         conn = self.conectar()
         response = conn.call(method='GET', url='/api/notifications/')
-
-        notificaciones = response.json()['data']
+        notificaciones = []
+        try:
+            notificaciones = response.json()['data']
+        except ValueError:
+            print(f"Empty response at {str(datetime.datetime.now(pytz.timezone('America/Bogota')))[:19]}", flush=True)
 
         for notificacion in notificaciones:
 

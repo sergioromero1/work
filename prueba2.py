@@ -40,9 +40,9 @@ def get_notification():
 
     nc = NotificadorCompra(BOT_TOKEN, currency, id_ad,MX_KEY, MX_SECRET, sleep_time, receptor, receptores, verificador, administrador, enviar_mensaje,verificador2, currency_venta, expresiones_regex)
     conn = nc.conectar()
-    # response = conn.call(method='GET', url='/api/notifications/')
-    # notificaciones = response.json()['data']
-    # print(notificaciones[2])
+    response = conn.call(method='GET', url='/api/notifications/')
+    notificaciones = response.json()['data']
+    print(notificaciones)
 
     notificacion = {
         'read': True, 
@@ -100,8 +100,8 @@ def get_notification():
     }
     # contact_mesages  = nc.get_contact_messages(conn,  notificacion['contact_id'])
     # print(contact_mesages)
-    lista_liberados = conn.call(method='GET', url=f'/api/dashboard/released/').json()['data']['contact_list']
-    print(lista_liberados)
+    # lista_liberados = conn.call(method='GET', url=f'/api/dashboard/released/').json()['data']['contact_list']
+    # print(lista_liberados)
 
 def info_pais():
     porcentaje_de_ganancia = 1.09
@@ -190,6 +190,7 @@ def info_pais2():
         'contact_id': 78952833}
     # notificador.send_msg_contact(conn,contact_id, mensaje_nuevo_comercio, f'Mensaje nuevo comercio enviado #{contact_id}',verbose=True)
     # notificador.marcar_notificacion_como_leida(conn,noti,f'Nuevo comercio #{contact_id}')
+    print(conn.call(method='GET', url=f'/api/contact_messages/{79124706}/').json()['data']['message_list'])
 
 if __name__ == "__main__":
-    info_pais2()
+    get_notification()
