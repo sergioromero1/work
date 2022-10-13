@@ -70,7 +70,7 @@ class Notificador:
 
         contact_id = notificacion['contact_id']
 
-        self.send_msg_contact(conn,contact_id, mensaje_nuevo_comercio, f'Mensaje nuevo comercio enviado #{contact_id}',verbose=True)
+        self.send_msg_contact(conn,contact_id, mensaje_nuevo_comercio, f'Mensaje de nuevo comercio enviado #{contact_id}',verbose=True)
         
         self.marcar_notificacion_como_leida(conn,notificacion,f'Nuevo comercio #{contact_id}')
     
@@ -256,7 +256,11 @@ class Notificador:
 
         notification_id = notificacion['id']
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
-        print(marcar_como_leida.json(), f' Notif leida de {descripcion}', flush=True)
+        print(
+            marcar_como_leida.json(), 
+            f' Notif leida de {descripcion} ',
+            {str(datetime.datetime.now(pytz.timezone('America/Bogota')))[:19]},
+            flush=True)
 
     def respond_notifications(self):
 
@@ -330,16 +334,20 @@ class Notificador:
     def send_msg_contact(self,conn, contact_id, mensaje, descripcion, verbose=False):
 
         """Envia un mensaje a un contact_id"""
-        
+                
         enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
 
         if verbose == True:
-            print(enviar_mensaje.json(), f'{descripcion}', flush=True)
+            print(
+                enviar_mensaje.json(), 
+                f'{descripcion}',
+                {str(datetime.datetime.now(pytz.timezone('America/Bogota')))[:19]},
+                flush=True)
 
     def send_text(self, receptores, bot_message, verbose=False):
 
         """Envia un mensaje a a la lista 'receptores' en telegram"""
-
+        
         bot_token, enviar_mensaje = self.get_atributos("bot_token", "enviar_mensaje")
 
         if enviar_mensaje:
@@ -351,6 +359,7 @@ class Notificador:
 
         else:
             print('Envio de mensajes desactivado')
+        
 
 class NotificadorCompra(Notificador):
 
