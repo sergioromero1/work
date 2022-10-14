@@ -589,7 +589,7 @@ class NotificadorCompra(Notificador):
         """Atiende las notificaciones"""
 
         id_ad, currency = self.get_atributos("id_ad", "currency")
-        # print(self.con_color(f'Revisando notificaciones...{currency[0:2]}'), flush=True)
+        print(self.con_color(f'Revisando notificaciones...{currency[0:2]}'), flush=True)
         start_time = time.time()
         conn = self.conectar()
         response = conn.call(method='GET', url='/api/notifications/')
