@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 from decoradores.loop import loop
 from .conectar import Connection
 from utils.color import Color
@@ -65,12 +66,17 @@ class Notificador:
     def atender_nuevo_comercio(self, notificacion, conn):
 
         """Atiende la notificacion de 'tiene un nuevo comercio'"""
+        time.sleep(5)
+
+        administrador, = self.get_atributos('administrador')
+
+        self.send_text([administrador],'Entró en funcion atender nuevo comercio ',verbose=True)
 
         mensaje_nuevo_comercio = self.get_message_nuevo_comercio()
 
         contact_id = notificacion['contact_id']
 
-        self.send_msg_contact(conn,contact_id, mensaje_nuevo_comercio, f'Mensaje de nuevo comercio enviado #{contact_id}',verbose=True)
+        self.send_msg_contact(conn, contact_id, mensaje_nuevo_comercio, f'Mensaje de nuevo comercio enviado #{contact_id}', verbose=True)
         
         self.marcar_notificacion_como_leida(conn,notificacion,f'Nuevo comercio #{contact_id}')
     
@@ -106,8 +112,14 @@ class Notificador:
     def atender_nuevo_mensaje(self, notificacion, conn):
 
         """Atiende un mensaje nuevo"""
+
+        administrador, = self.get_atributos('administrador')
+
+        time.sleep(5)
         administrador,receptor,verificador,verificador2 = self.get_atributos('administrador','receptor','verificador', 'verificador2')
         mensaje_de_venta_completada = self.get_message_venta_completada()
+
+        self.send_text([administrador],'Entró en funcion atender nuevo mensaje ',verbose=True)
 
         attachment = False
         payed = False
@@ -227,7 +239,7 @@ class Notificador:
         
         return str(ad_id)
 
-    @loop
+    #@loop
     def iniciar(self):
 
         sleep_time = int(self.sleep_time)
@@ -254,6 +266,9 @@ class Notificador:
 
     def marcar_notificacion_como_leida(self,conn, notificacion, descripcion):
 
+        administrador, = self.get_atributos('administrador')
+
+
         notification_id = notificacion['id']
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
         print(
@@ -261,13 +276,15 @@ class Notificador:
             f' Notif leida de {descripcion} ',
             {str(datetime.datetime.now(pytz.timezone('America/Bogota')))[:19]},
             flush=True)
+        self.send_text([administrador],f'Se marcó norficacion {descripcion} como leida ',verbose=True)
+        
 
     def respond_notifications(self):
 
         """Atiende las notificaciones"""
 
         id_ad, currency = self.get_atributos("id_ad", "currency")
-        # print(self.con_color(f'Revisando notificaciones...{currency[0:2]}'), flush=True)
+        print(self.con_color(f'Revisando notificaciones...{currency[0:2]}'), flush=True)
         start_time = time.time()
         conn = self.conectar()
         response = conn.call(method='GET', url='/api/notifications/')
@@ -334,8 +351,10 @@ class Notificador:
     def send_msg_contact(self,conn, contact_id, mensaje, descripcion, verbose=False):
 
         """Envia un mensaje a un contact_id"""
-                
-        enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
+        try:
+            enviar_mensaje = conn.call(method='POST', url= f'/api/contact_message_post/{contact_id}/', params={'msg': f'{mensaje}'})
+        except ValueError:
+            print(f"send_msg_contact error at {str(datetime.datetime.now(pytz.timezone('America/Bogota')))[:19]}", flush=True)
 
         if verbose == True:
             print(
