@@ -1,7 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
+import sys
 from agentes.conectar import Connection
 from settings.settings import BOT_TOKEN, MX_KEY, MX_SECRET
+
 
 COMISION_LOCAL = 0.02
 
@@ -69,7 +71,7 @@ def margen(conn, currency, mmin, mmax):
     
     margen = precio_venta / precio_compra - COMISION_LOCAL
 
-    return margen
+    return margen, precio_venta, precio_compra
 
 def precio(conn, currency, mmin, mmax, tipo):
 
@@ -85,12 +87,14 @@ def precio(conn, currency, mmin, mmax, tipo):
 
 def main():
     conn = conectar()
-    m_cr = round(margen(conn, 'CRC', 10000, 300000),3)
-    m_mx = round(margen(conn, 'MXN', 100, 10000),3)
-    m_ec = round(margen(conn, 'USD', 100, 400),3)
-    print(f'Margen CR:  {m_cr}')
-    print(f'Margen MX:  {m_mx}')
-    print(f'Margen EC:  {m_ec}')
+    cap = float(sys.argv[1])
+    m_cr, pv_cr, pc_cr = margen(conn, 'CRC', 10000, 300000)
+    m_mx, pv_mx, pc_mx = margen(conn, 'MXN', 100, 10000)
+    m_us, pv_us, pc_us = margen(conn, 'USD', 100, 400)
+    new_cap = cap*round(m_mx,3)
+    print(f'Margen CR:  {round(m_cr,3)}')
+    print(f'Margen MX:  {round(m_mx,3)}  pv {round(pv_mx)}  pc {round(pc_mx)}  cap {cap} newcap {new_cap}')
+    print(f'Margen EC:  {round(m_us,3)}')
 
 
 
