@@ -1,4 +1,4 @@
-from agentes.notificador import Notificador
+from agentes.notificador2 import Notificador
 from settings.settings import BOT_TOKEN, MX_KEY, MX_SECRET
 import sys
 
