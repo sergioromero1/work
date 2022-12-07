@@ -6,7 +6,7 @@ if __name__ == "__main__":
     currency = 'MXN'
     id_ad = '1261529'
     sleep_time = 30
-    receptor = 'ivan'
+    receptor = sys.argv[1]
     receptores = {'irene': 'Hola \n BBVA Bancomer \n Maria Irene Martinez \n\n Para pago en oxxo \n 4152 3137 5463 8984  \n\n Para Transferencia SPEI \n '\
                         '012818015381863212',
 
