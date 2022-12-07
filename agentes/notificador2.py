@@ -67,7 +67,7 @@ class Notificador:
         
         return str(ad_id)
 
-    #@loop
+    @loop
     def iniciar(self):
 
         sleep_time = int(self.sleep_time)
