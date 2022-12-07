@@ -24,7 +24,6 @@ class Vendedor:
         """Retorna los atributos solicitados como una tupla"""
 
         return (self.__dict__[nombre] for nombre in nombres)
-
     #OK
     def get_btc_en_scrow(self, conn, currency):
         
@@ -188,7 +187,7 @@ class Vendedor:
         time.sleep(420)
 
     def fijar(self, precio_limite, conn):
-
+        start_time = time.time()
         """Fija el anuncio en un precio determinado"""
 
         ad_id, comision_local, currency, minimo = self.get_atributos("ad_id","comision_local", "currency", "minimo")
@@ -202,6 +201,9 @@ class Vendedor:
         
         mi_nuevo_precio,_,_ = self.precio_actual(conn)
         print(response.json(), f'Precio fijado, Mi precio estabilizado por 15 min es {mi_nuevo_precio} {currency}', flush=True)
+        end_time = time.time()
+        duracion = end_time - start_time 
+        print('la duracion de enviar los datos para fijar el precio fue: ', self.format_time(duracion), flush=True)
 
     def format_time(self,sec):
 

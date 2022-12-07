@@ -1,13 +1,10 @@
 from agentes.vendedor import Vendedor
-
 from settings.settings import MX_KEY, MX_SECRET
-import time
-
 import sys
 
 if __name__ == "__main__":
 
-    porcentaje_de_ganancia = 1.09
+    porcentaje_de_ganancia = float(sys.argv[1])
     minimo = 50
     comision_local = 0.01
     currency = 'MXN'

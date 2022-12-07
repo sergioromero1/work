@@ -1,13 +1,10 @@
 from agentes.vendedor import Vendedor
 from settings.settings import CR_KEY, CR_SECRET
-import time
-
-
 import sys
 
 if __name__ == "__main__":
 
-    porcentaje_de_ganancia = 1.03
+    porcentaje_de_ganancia = float(sys.argv[1])
     minimo = 10000
     comision_local = 0.01
     currency = 'CRC'
