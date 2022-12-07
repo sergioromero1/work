@@ -67,6 +67,12 @@ class Notificador:
         
         return str(ad_id)
 
+    def get_contact_info(self,conn,contact_id):
+
+        contact_info = conn.call(method='GET', url=f'/api/contact_info/{contact_id}/').json()['data']
+
+        return contact_info
+
     @loop
     def iniciar(self):
 
@@ -84,17 +90,17 @@ class Notificador:
         marcar_como_leida = conn.call(method='POST', url= f'/api/notifications/mark_as_read/{notification_id}/')
         print(
             marcar_como_leida.json(), 
-            f' Notif leida de {descripcion} ',
+            f' Notificación leida de {descripcion} ',
             {str(datetime.datetime.now(pytz.timezone('America/Bogota')))[:19]},
             flush=True)
-        self.send_text([administrador],f'Se marcó notificacion {descripcion} como leida ',verbose=False)
+        self.send_text([administrador],f'Se marcó notificacion de nuevo comercio como leida ')
         
     def respond_notifications(self):
 
         """Atiende las notificaciones"""
 
         id_ad, currency = self.get_atributos("id_ad", "currency")
-        print(f'Revisando notificaciones...{currency[0:2]}', flush=True)
+        # print(f'Revisando notificaciones...{currency[0:2]}', flush=True)
         conn = self.conectar()
         response = conn.call(method='GET', url='/api/notifications/')
         notificaciones = []
