@@ -93,13 +93,13 @@ class Notificador:
             f' Notificación leida de {descripcion} ',
             {str(datetime.datetime.now(pytz.timezone('America/Bogota')))[:19]},
             flush=True)
-        self.send_text([administrador],f'Se marcó notificacion de nuevo comercio como leida ')
+        self.send_text([administrador],f'Se marcó notificacion comercio como leida ')
         
     def respond_notifications(self):
 
         """Atiende las notificaciones"""
 
-        id_ad, currency = self.get_atributos("id_ad", "currency")
+        id_ad, administrador = self.get_atributos("id_ad", "administrador")
         # print(f'Revisando notificaciones...{currency[0:2]}', flush=True)
         conn = self.conectar()
         response = conn.call(method='GET', url='/api/notifications/')
@@ -118,6 +118,15 @@ class Notificador:
                     ad_id = self.identificar_ad_id(notificacion, conn)
                     if ad_id==id_ad:
                         self.atender_nuevo_comercio(notificacion, conn)
+                    
+                    continue
+
+                if not notificacion['read'] and notificacion['msg'][0:11] == 'El contacto':
+                    
+                    ad_id = self.identificar_ad_id(notificacion, conn)
+                    if ad_id==id_ad:
+                        self.send_text([administrador],'Marcaron como pagado')
+                        self.marcar_notificacion_como_leida(conn,notificacion,f'Marcado como pagado')
 
     def send_msg_contact(self,conn, contact_id, mensaje, descripcion, verbose=False):
 
